@@ -14,7 +14,6 @@ class View_principal():
         self.menubar.add_cascade(label='Opções', menu=self.menu_funcionario)
         self.menu_funcionario.add_command(label='Cadastrar Funcionário', command=controle.insere_funcionario)
         self.menu_funcionario.add_command(label='Consultar Funcionário', command=controle.consulta_funcionario)
-        self.menu_funcionario.add_command(label='Definir Aumento', command=None)
 
 
 class Controle_principal():

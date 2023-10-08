@@ -126,14 +126,14 @@ class Aumento(Toplevel):
         self.frame_botao = Frame(self)
         self.frame_novo_salario = Frame(self)
         
-        self.identidade = Label(self.frame_borda, text='Funcionário {}'.format(identidade), bg='light blue')
-        self.nome = Label(self.frame_borda, text=' \ {} \ '.format(nome), bg='light blue')
-        self.salario = Label(self.frame_borda, text='Salário Atual: R${}'.format(salario), bg='light blue')
+        self.identidade = Label(self.frame_borda, text=f'Funcionário {identidade}', bg='light blue')
+        self.nome = Label(self.frame_borda, text=f' \ {nome} \ ', bg='light blue')
+        self.salario = Label(self.frame_borda, text=f'Salário Atual: R${salario}', bg='light blue')
         self.input_novo_salario = Label(self.frame_novo_salario, text='Inserir Novo Salário ', bg='light blue')
         
         self.novo_salario = Entry(self.frame_novo_salario)
         
-        self.botao = Button(self.frame_botao, text='Definir Aumento', command=None) #Passar o def definir_salario
+        self.botao = Button(self.frame_botao, text='Confirmar Alteração', command=controle.definir_salario) #Passar o def conrirmar alteração
         
         self.frame_borda.pack()
         self.frame_novo_salario.pack()
@@ -222,7 +222,7 @@ class Consulta_funcionario(Toplevel):
         
         self.nome = Label(self.frame_listbox, text='Funcionários:', bg='light blue')
         
-        self.alterar_salario = Button(self.frame_botao, text='Alterar Salário', command=controle.gerir_salario)
+        self.alterar_salario = Button(self.frame_botao, text='Alterar Salário', command=controle.gerir_salario) #abre a tela para alterar o salario do funcionario
         
         self.listbox = Listbox(self.frame_listbox, width=20, height=10)
         
@@ -267,7 +267,7 @@ class Controle_funcionario():
         self.consulta = Consulta_funcionario(self, lista_dados_funcionario)
         
     #Abre a tela para gerenciar o salario do funcionário
-    def gerir_salario(self): #passar nome, identidade e salario
+    def gerir_salario(self): #passar nome, identidade e salario para a classe Aumento
         identidade = self.consulta.listbox.get(ACTIVE)
         
         for funcionario in self.lista_funcionarios:
@@ -279,8 +279,23 @@ class Controle_funcionario():
         self.aumento = Aumento(self, identidade, nome, salario)
         
     def definir_salario(self): #confirmação da alteração de salario
-        novo_salario = self.aumento.input_novo_salario.get()
+        novo_salario = self.aumento.novo_salario.get()
         
+        try:
+            if len(novo_salario) <= 0:
+                raise ValueError('Nenhum salário foi indicado')
+        
+            else:
+                for funcionario in self.lista_funcionarios:
+                    if funcionario.identidade == self.aumento.identidade:
+                        funcionario.salario = novo_salario
+                
+                self.cadastro.mostra_janela('Sucesso', 'Salário alterado com sucesso')
+                
+                self.limpa_texto()
+
+        except ValueError as erro:
+            self.cadastro.mostra_janela('Erro', erro)
         
     def enter_handler(self):
         identidade = self.cadastro.input_id.get()
@@ -292,18 +307,38 @@ class Controle_funcionario():
 
         try:
             for funcionario in self.lista_funcionarios:
-                if cpf in funcionario.cpf: 
+                if identidade in funcionario.identidade and len(identidade) > 1:
+                    raise ValueError(f'A identidade {identidade} já consta no registro')
+                
+                elif identidade in funcionario.identidade and len(identidade) == 0:
+                    raise ValueError(f'O número de identidade {identidade} não foi indicado')
+                
+                #__________________________________________________#
+                
+                elif nome in funcionario.nome and len(nome) > 1:
+                    raise ValueError('Este nome já consta no registro')
+                
+                elif nome in funcionario.nome and len(nome) == 0:
+                    raise ValueError('O nome não foi indicado')
+                
+                #__________________________________________________#
+
+                elif email in funcionario.email and len(email) > 1:
+                    raise ValueError('Este email já consta no registro')
+                
+                elif email in funcionario.email and len(email) == 0:
+                    raise ValueError('O email não foi indicado')
+                
+                #__________________________________________________#
+
+                elif cpf in funcionario.cpf and len(cpf) > 1: 
                     raise ValueError('Este CPF já consta no registro')
                 
-                elif identidade in funcionario.identidade:
-                    raise ValueError('Este número de identidade já consta no registro')
+                elif cpf in funcionario.cpf and len(cpf) == 0:
+                    raise ValueError('O CPF não foi indicado')
                 
-                elif email in funcionario.email:
-                    raise ValueError('Este Email já consta no registro')
-            
             else: 
-                funcionario = Funcionario(identidade, nome, idade, email, cpf, salario)
-                self.lista_funcionarios.append(funcionario)
+                self.lista_funcionarios.append(Funcionario(identidade, nome, idade, email, cpf, salario))
 
                 self.cadastro.mostra_janela('Sucesso', 'Funcionário Cadastrado com Sucesso')
 
@@ -342,3 +377,5 @@ class Controle_funcionario():
         self.cadastro.input_email.delete(0, END)
         self.cadastro.input_cpf.delete(0, END)  
         self.cadastro.input_salario.delete(0, END)
+        self.aumento.novo_salario.delete(0, END)
+        
