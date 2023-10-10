@@ -41,9 +41,6 @@ class Funcionario():
     
     @identidade.setter
     def identidade(self, id):
-        if len(id) <= 0:
-            raise ValueError('Número de identidade não indicado')
-        
         if len(id) < 4 or len(id) > 4:
             raise ValueError('Número de identidade inválido (deve conter 4 digitos)')
         
@@ -53,7 +50,7 @@ class Funcionario():
     @nome.setter
     def nome(self, nome):
         if len(nome) <= 0:
-            raise ValueError('Nenhum nome foi indicado')
+            raise ValueError('Nome não indicado')
         
         else:
             self.__nome = nome
@@ -64,19 +61,16 @@ class Funcionario():
         if len(email) <= 0:
             raise ValueError('Email não indicado')
         
-        if re.search(regex, email):
-            self.__email = email
-
-        else: 
+        elif re.search(regex, email) is False:
             raise ValueError('Email Inválido')
+        
+        else: 
+            self.__email = email
             
     @cpf.setter
     def cpf(self, cpf):
         if len(cpf) < 11 or len(cpf) > 11:
             raise ValueError('CPF Inválido (O CPF deve conter 11 digitos)')
-        
-        elif len(cpf) == None:
-            raise ValueError('O CPF não foi indicado')
         
         else:
             self.__cpf = cpf
@@ -87,13 +81,13 @@ class Funcionario():
         if len(idade) <= 0:
             raise ValueError('Idade não indicada')
         
-        if int(idade) < 18: 
+        elif int(idade) < 18: 
             raise ValueError('Idade Insuficiente!')
         
-        if int(idade) > 65: 
+        elif int(idade) > 65: 
             raise ValueError('Idade muito grande!')
         
-        if int(idade) > 100:
+        elif int(idade) > 100:
             raise ValueError('Idade Inválida')
         
         else:
@@ -101,9 +95,6 @@ class Funcionario():
             
     @salario.setter
     def salario(self, salario):
-        if len(salario) <= 0:
-            raise ValueError('Nenhum salário foi indicado')  
-        
         if int(salario) < 500:
             raise ValueError('Salário inválido') 
         
@@ -243,6 +234,7 @@ class Consulta_funcionario(Toplevel):
         
 class Controle_funcionario():
     def __init__(self):
+        self.cadastro = Cadastra_funcionario(self)
                 
         if not os.path.isfile('funcionarios.pickle'):
             self.lista_funcionarios = []
@@ -260,7 +252,7 @@ class Controle_funcionario():
                 self.cadastro.withdraw()
                 
     def insere_funcionario(self):
-        self.cadastro = Cadastra_funcionario(self)
+        self.cadastro.deiconify()
         
     def consulta_funcionario(self):
         lista_dados_funcionario = self.get_id_funcionarios()
@@ -280,15 +272,21 @@ class Controle_funcionario():
         
     def definir_salario(self): #confirmação da alteração de salario
         novo_salario = self.aumento.novo_salario.get()
-        
+        identidade = self.consulta.listbox.get(ACTIVE)
+
         try:
             if len(novo_salario) <= 0:
                 raise ValueError('Nenhum salário foi indicado')
+            
+            elif int(novo_salario) < 500:
+                raise ValueError('Salário inválido')
         
             else:
                 for funcionario in self.lista_funcionarios:
-                    if funcionario.identidade == self.aumento.identidade:
-                        funcionario.salario = novo_salario
+                    if identidade[1] == funcionario.identidade:
+                        funcionario.salario = novo_salario  
+                
+                self.salva_dados_funcionarios() #Salva as novas alterações feitas no salário do funcionário
                 
                 self.cadastro.mostra_janela('Sucesso', 'Salário alterado com sucesso')
                 
@@ -311,7 +309,7 @@ class Controle_funcionario():
                     raise ValueError(f'A identidade {identidade} já consta no registro')
                 
                 elif identidade in funcionario.identidade and len(identidade) == 0:
-                    raise ValueError(f'O número de identidade {identidade} não foi indicado')
+                    raise ValueError('O número de identidade não foi indicado')
                 
                 #__________________________________________________#
                 
@@ -336,6 +334,11 @@ class Controle_funcionario():
                 
                 elif cpf in funcionario.cpf and len(cpf) == 0:
                     raise ValueError('O CPF não foi indicado')
+                
+                #__________________________________________________#
+                
+                elif salario in funcionario.salario and len(salario) == 0:
+                    raise ValueError('O salário não foi indicado')
                 
             else: 
                 self.lista_funcionarios.append(Funcionario(identidade, nome, idade, email, cpf, salario))
@@ -362,12 +365,12 @@ class Controle_funcionario():
         
         for info in self.lista_funcionarios:
             if funcionario[1] == info.identidade:
-                info_funcionarios = 'Funcionário {}\n\n'.format(info.identidade)
-                info_funcionarios += 'Nome: {}\n\n'.format(info.nome)
-                info_funcionarios += 'Idade: {}\n\n'.format(info.idade)
-                info_funcionarios += 'Email: {}\n\n'.format(info.email)
-                info_funcionarios += 'CPF: {}\n\n'.format(info.cpf)
-                info_funcionarios += 'Salário: R${}'.format(info.salario)
+                info_funcionarios = f'Funcionário {info.identidade}\n\n'
+                info_funcionarios += f'Nome: {info.nome}\n\n'
+                info_funcionarios += f'Idade: {info.idade}\n\n'
+                info_funcionarios += f'Email: {info.email}\n\n'
+                info_funcionarios += f'CPF: {info.cpf}\n\n'
+                info_funcionarios += f'Salário: R${info.salario}\n\n'
         messagebox.showinfo('Funcionário', info_funcionarios)
     
     def limpa_texto(self):
