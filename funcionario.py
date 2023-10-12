@@ -153,7 +153,7 @@ class Cadastra_funcionario(Toplevel):
         self.frame_botao = Frame(self, bg='light blue')
         self.frame_data = Frame(self)
 
-        self.data = Label(self.frame_data, text='{}'.format(data), bg='light blue')
+        self.data = Label(self.frame_data, text=f'{data}', bg='light blue')
         self.id = Label(self.frame_borda, text='Nº ID:', bg='light blue', foreground='#000')
         self.nome = Label(self.frame_borda, text='Nome:', bg='light blue', foreground='#000')
         self.idade = Label(self.frame_borda, text='Idade:', bg='light blue', foreground='#000')
