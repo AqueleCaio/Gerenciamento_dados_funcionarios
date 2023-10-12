@@ -234,7 +234,6 @@ class Consulta_funcionario(Toplevel):
         
 class Controle_funcionario():
     def __init__(self):
-        self.cadastro = Cadastra_funcionario(self)
                 
         if not os.path.isfile('funcionarios.pickle'):
             self.lista_funcionarios = []
@@ -252,7 +251,7 @@ class Controle_funcionario():
                 self.cadastro.withdraw()
                 
     def insere_funcionario(self):
-        self.cadastro.deiconify()
+        self.cadastro = Cadastra_funcionario(self)
         
     def consulta_funcionario(self):
         lista_dados_funcionario = self.get_id_funcionarios()
