@@ -57,15 +57,14 @@ class Funcionario():
                 
     @email.setter
     def email(self, email):
-        regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
-        if len(email) <= 0:
-            raise ValueError('Email não indicado')
+        # Valida o email antes de atribuí-lo
+        regex = re.compile(r'^[\w-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$')
         
-        elif re.search(regex, email) is False:
-            raise ValueError('Email Inválido')
-        
-        else: 
+        if regex.match(email):
             self.__email = email
+        
+        else:
+            raise ValueError('Email inválido')
             
     @cpf.setter
     def cpf(self, cpf):
