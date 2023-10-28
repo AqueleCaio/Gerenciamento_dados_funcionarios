@@ -2,18 +2,20 @@ from tkinter import *
 from datetime import *
 from tkinter import messagebox
 import pickle, os.path, re
+from email_validator import validate_email
 
 date = datetime.now()
 data = date.strftime('%d/%m/%Y\n %H:%M')
 
 class Funcionario():
-    def __init__(self, identidade, nome, idade, email, cpf, salario):
+    def __init__(self, identidade, nome, idade, email, cpf, salario, data_adimissão):
         self.identidade = identidade
         self.nome = nome
         self.idade = idade
         self.email = email
         self.cpf = cpf 
         self.salario = salario
+        self.__data_adimissão = data_adimissão
         
     @property
     def identidade(self):
@@ -39,6 +41,10 @@ class Funcionario():
     def salario(self):
         return self.__salario
     
+    @property
+    def data_adimissão(self):
+        return self.__data_adimissão
+    
     @identidade.setter
     def identidade(self, id):
         if len(id) < 4 or len(id) > 4:
@@ -57,14 +63,15 @@ class Funcionario():
                 
     @email.setter
     def email(self, email):
-        # Valida o email antes de atribuí-lo
-        regex = re.compile(r'^[\w-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$')
+        valide_email = validate_email(email)
+        dominio = valide_email['email'].split('@')[1].split('.')[0]
+        dominios = ['gmail', 'hotmail', 'yahoo', 'outlook']
         
-        if regex.match(email):
-            self.__email = email
+        if validate_email == False or dominio not in dominios:
+            raise ValueError('Email inválido')
         
         else:
-            raise ValueError('Email inválido')
+            self.__email = email
             
     @cpf.setter
     def cpf(self, cpf):
@@ -76,7 +83,6 @@ class Funcionario():
             
     @idade.setter
     def idade(self, idade):
-        
         if len(idade) <= 0:
             raise ValueError('Idade não indicada')
         
@@ -108,16 +114,16 @@ class Aumento(Toplevel):
         self.controle = controle
         
         self.title('Alterar salário')
-        self.geometry('450x250')
+        self.geometry('350x150')
         self.configure(bg='light blue')
         self.resizable(False, False)        
 
         self.frame_borda = Frame(self, bg='light blue', borderwidth=1, relief='raised')
         self.frame_botao = Frame(self)
-        self.frame_novo_salario = Frame(self)
+        self.frame_novo_salario = Frame(self, bg='light blue')
         
         self.identidade = Label(self.frame_borda, text=f'Funcionário {identidade}', bg='light blue')
-        self.nome = Label(self.frame_borda, text=f' \ {nome} \ ', bg='light blue')
+        self.nome = Label(self.frame_borda, text=f'{nome}  ', bg='light blue')
         self.salario = Label(self.frame_borda, text=f'Salário Atual: R${salario}', bg='light blue')
         self.input_novo_salario = Label(self.frame_novo_salario, text='Inserir Novo Salário ', bg='light blue')
         
@@ -133,7 +139,7 @@ class Aumento(Toplevel):
         self.nome.pack(side='left', pady=5)
         self.salario.pack(side='left', pady=5)
         self.input_novo_salario.pack(side='left')
-        self.novo_salario.pack()
+        self.novo_salario.pack(anchor=CENTER, pady=35, padx=5) #pady e padx para o botão ficar no centro
         self.botao.pack()
         
                 
@@ -195,6 +201,7 @@ class Cadastra_funcionario(Toplevel):
     def mostra_janela(self, titulo, menssagem):
         messagebox.showinfo(titulo, menssagem)
 
+#criar um deletar funcionario
 
 class Consulta_funcionario(Toplevel):
     def __init__(self, controle, lista_funcionarios):
@@ -300,6 +307,9 @@ class Controle_funcionario():
         email = self.cadastro.input_email.get()
         cpf = self.cadastro.input_cpf.get()
         salario = self.cadastro.input_salario.get()
+        data_adimissão = date.strftime('%d/%m/%Y' ' - ' '%H:%M')
+        
+        print(data_adimissão)
 
         try:
             for funcionario in self.lista_funcionarios:
@@ -339,7 +349,7 @@ class Controle_funcionario():
                     raise ValueError('O salário não foi indicado')
                 
             else: 
-                self.lista_funcionarios.append(Funcionario(identidade, nome, idade, email, cpf, salario))
+                self.lista_funcionarios.append(Funcionario(identidade, nome, idade, email, cpf, salario, data_adimissão))
 
                 self.cadastro.mostra_janela('Sucesso', 'Funcionário Cadastrado com Sucesso')
 
@@ -367,8 +377,10 @@ class Controle_funcionario():
                 info_funcionarios += f'Nome: {info.nome}\n\n'
                 info_funcionarios += f'Idade: {info.idade}\n\n'
                 info_funcionarios += f'Email: {info.email}\n\n'
+                #fazer com que na consulta o cpf apareça com pontos e traços
                 info_funcionarios += f'CPF: {info.cpf}\n\n'
                 info_funcionarios += f'Salário: R${info.salario}\n\n'
+                info_funcionarios += f'Data de Adimissão: {info.data_adimissão}'
         messagebox.showinfo('Funcionário', info_funcionarios)
     
     def limpa_texto(self):
