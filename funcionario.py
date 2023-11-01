@@ -45,6 +45,8 @@ class Funcionario():
     def data_adimissão(self):
         return self.__data_adimissão
     
+    #mudar todos os setters para validar se é valido
+    
     @identidade.setter
     def identidade(self, id):
         if len(id) < 4 or len(id) > 4:
@@ -309,8 +311,6 @@ class Controle_funcionario():
         salario = self.cadastro.input_salario.get()
         data_adimissão = date.strftime('%d/%m/%Y' ' - ' '%H:%M')
         
-        print(data_adimissão)
-
         try:
             for funcionario in self.lista_funcionarios:
                 if identidade in funcionario.identidade and len(identidade) > 1:
