@@ -378,7 +378,8 @@ class Controle_funcionario():
                 info_funcionarios += f'Idade: {info.idade}\n\n'
                 info_funcionarios += f'Email: {info.email}\n\n'
                 #fazer com que na consulta o cpf apareça com pontos e traços
-                info_funcionarios += f'CPF: {info.cpf}\n\n'
+                cpf = info.cpf[:3] + '.' + info.cpf[3:6] + '.' + info.cpf[6:9] + '-' + info.cpf[9:]
+                info_funcionarios += f'CPF: {cpf}\n\n'
                 info_funcionarios += f'Salário: R${info.salario}\n\n'
                 info_funcionarios += f'Data de Adimissão: {info.data_adimissão}'
         messagebox.showinfo('Funcionário', info_funcionarios)
