@@ -3,6 +3,7 @@ from datetime import *
 from tkinter import messagebox
 import pickle, os.path, re
 from email_validator import validate_email
+from validate_docbr import CPF
 
 date = datetime.now()
 data = date.strftime('%d/%m/%Y\n %H:%M')
@@ -45,21 +46,28 @@ class Funcionario():
     def data_adimissão(self):
         return self.__data_adimissão
     
-    #mudar todos os setters para validar se é valido
-    
+
     @identidade.setter
     def identidade(self, id):
         if len(id) < 4 or len(id) > 4:
             raise ValueError('Número de identidade inválido (deve conter 4 digitos)')
+        
+        elif int(id) == False:
+            raise ValueError('Identidade inválida')
         
         else:
             self.__identidade = id
             
     @nome.setter
     def nome(self, nome):
-        if len(nome) <= 0:
-            raise ValueError('Nome não indicado')
+        #valida se o nome contem numeros ou caracteres especiais
+        if re.search('[0-9]', nome) or re.search('[!@#$%&*()_+=]', nome):
+            raise ValueError('Nome inválido')
         
+        #valida se o nome contem nome e sobrenome
+        elif len(nome.split()) < 2:
+            raise ValueError('Deve conter nome e sobrenome')
+  
         else:
             self.__nome = nome
                 
@@ -78,7 +86,10 @@ class Funcionario():
     @cpf.setter
     def cpf(self, cpf):
         if len(cpf) < 11 or len(cpf) > 11:
-            raise ValueError('CPF Inválido (O CPF deve conter 11 digitos)')
+            raise ValueError('CPF deve conter 11 digitos')
+        
+        elif int(cpf) == False:
+            raise ValueError('CPF inválido')
         
         else:
             self.__cpf = cpf
@@ -91,11 +102,8 @@ class Funcionario():
         elif int(idade) < 18: 
             raise ValueError('Idade Insuficiente!')
         
-        elif int(idade) > 65: 
+        elif int(idade) > 70: 
             raise ValueError('Idade muito grande!')
-        
-        elif int(idade) > 100:
-            raise ValueError('Idade Inválida')
         
         else:
             self.__idade = idade     
@@ -200,11 +208,6 @@ class Cadastra_funcionario(Toplevel):
         self.input_cpf.grid(column=1, row=4, sticky=W, pady=2) 
         self.input_salario.grid(column=1, row=5, sticky=W, pady=2) 
 
-    def mostra_janela(self, titulo, menssagem):
-        messagebox.showinfo(titulo, menssagem)
-
-#criar um deletar funcionario
-
 class Consulta_funcionario(Toplevel):
     def __init__(self, controle, lista_funcionarios):
         
@@ -222,6 +225,7 @@ class Consulta_funcionario(Toplevel):
         self.nome = Label(self.frame_listbox, text='Funcionários:', bg='light blue')
         
         self.alterar_salario = Button(self.frame_botao, text='Alterar Salário', command=controle.gerir_salario) #abre a tela para alterar o salario do funcionario
+        self.deleta = Button(self.frame_botao, text='Deletar', command=controle.deleta_funcionario)
         
         self.listbox = Listbox(self.frame_listbox, width=20, height=10)
         
@@ -236,6 +240,7 @@ class Consulta_funcionario(Toplevel):
         self.listbox.pack(side='bottom')
         
         self.alterar_salario.pack(side='right', padx=5, pady=12)
+        self.deleta.pack(side='right', padx=5, pady=12)
         
         self.nome.pack(side='top')
         
@@ -250,16 +255,29 @@ class Controle_funcionario():
             with open ('funcionarios.pickle', 'rb') as file:
                 self.lista_funcionarios = pickle.load(file)  
                 
+    def insere_funcionario(self):
+        self.cadastro = Cadastra_funcionario(self)
                 
     def salva_dados_funcionarios(self):
         if len(self.lista_funcionarios) != 0:
             with open ('funcionarios.pickle', 'wb') as file:
                 pickle.dump(self.lista_funcionarios, file)
                 
-                self.cadastro.withdraw()
+                self.aumento.destroy()
+                                
+    def deleta_funcionario(self):
+        identidade = self.consulta.listbox.get(ACTIVE)
+        
+        for funcionario in self.lista_funcionarios:
+            if identidade[1] == funcionario.identidade:
+                self.lista_funcionarios.remove(funcionario)
                 
-    def insere_funcionario(self):
-        self.cadastro = Cadastra_funcionario(self)
+                self.salva_dados_funcionarios()
+                
+                self.mostra_janela('Sucesso', 'Funcionário deletado com sucesso')
+                
+                #faz o funcionário sair da lista de funcionários
+                self.consulta.listbox.delete(ACTIVE)
         
     def consulta_funcionario(self):
         lista_dados_funcionario = self.get_id_funcionarios()
@@ -276,6 +294,7 @@ class Controle_funcionario():
                 salario = funcionario.salario
         
         self.aumento = Aumento(self, identidade, nome, salario)
+        
         
     def definir_salario(self): #confirmação da alteração de salario
         novo_salario = self.aumento.novo_salario.get()
@@ -295,12 +314,11 @@ class Controle_funcionario():
                 
                 self.salva_dados_funcionarios() #Salva as novas alterações feitas no salário do funcionário
                 
-                self.cadastro.mostra_janela('Sucesso', 'Salário alterado com sucesso')
+                self.mostra_janela('Sucesso', 'Salário alterado com sucesso')
                 
-                self.limpa_texto()
 
         except ValueError as erro:
-            self.cadastro.mostra_janela('Erro', erro)
+            self.mostra_janela('Erro', erro)
         
     def enter_handler(self):
         identidade = self.cadastro.input_id.get()
@@ -345,18 +363,15 @@ class Controle_funcionario():
                 
                 #__________________________________________________#
                 
-                elif salario in funcionario.salario and len(salario) == 0:
-                    raise ValueError('O salário não foi indicado')
-                
             else: 
                 self.lista_funcionarios.append(Funcionario(identidade, nome, idade, email, cpf, salario, data_adimissão))
 
-                self.cadastro.mostra_janela('Sucesso', 'Funcionário Cadastrado com Sucesso')
-
+                self.mostra_janela('Sucesso', 'Funcionário Cadastrado com Sucesso')
+                
                 self.limpa_texto()   
                 
         except ValueError as erro:
-            self.cadastro.mostra_janela('Erro', erro)
+            self.mostra_janela('Erro', erro)
             
     def get_id_funcionarios(self):
         self.lista_dados_funcionario = []
@@ -377,12 +392,15 @@ class Controle_funcionario():
                 info_funcionarios += f'Nome: {info.nome}\n\n'
                 info_funcionarios += f'Idade: {info.idade}\n\n'
                 info_funcionarios += f'Email: {info.email}\n\n'
-                #fazer com que na consulta o cpf apareça com pontos e traços
+                #faz com que na consulta o cpf apareça com pontos e traços
                 cpf = info.cpf[:3] + '.' + info.cpf[3:6] + '.' + info.cpf[6:9] + '-' + info.cpf[9:]
                 info_funcionarios += f'CPF: {cpf}\n\n'
                 info_funcionarios += f'Salário: R${info.salario}\n\n'
                 info_funcionarios += f'Data de Adimissão: {info.data_adimissão}'
-        messagebox.showinfo('Funcionário', info_funcionarios)
+        self.mostra_janela('Funcionário', info_funcionarios)
+    
+    def mostra_janela(self, titulo, menssagem):
+        messagebox.showinfo(titulo, menssagem)
     
     def limpa_texto(self):
         self.cadastro.input_id.delete(0, END)
@@ -391,5 +409,4 @@ class Controle_funcionario():
         self.cadastro.input_email.delete(0, END)
         self.cadastro.input_cpf.delete(0, END)  
         self.cadastro.input_salario.delete(0, END)
-        self.aumento.novo_salario.delete(0, END)
         
