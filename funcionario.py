@@ -177,7 +177,7 @@ class Cadastra_funcionario(Toplevel):
         self.salario = Label(self.frame_borda, text='Salário: ', bg='light blue', foreground='#000')
         
         self.cadastrar = Button(self.frame_botao, text='Cadastrar', command=controle.enter_handler)
-        self.salva_funcionarios = Button(self.frame_botao, text='Sair e Salvar', command=controle.salva_dados_funcionarios)
+        self.sair = Button(self.frame_botao, text='Sair', command=controle.salva_dados_funcionarios)
         
         self.input_id = Entry(self.frame_borda, width=10)
         self.input_nome = Entry(self.frame_borda, width=30)
@@ -199,7 +199,7 @@ class Cadastra_funcionario(Toplevel):
         self.salario.grid(column=0, row=5, sticky=W, pady=2)
         
         self.cadastrar.grid(column=0, row=6, sticky=W, pady=2, padx=2) 
-        self.salva_funcionarios.grid(column=1, row=6, sticky=W, pady=2, padx=2)
+        self.sair.grid(column=1, row=6, sticky=W, pady=2, padx=2)
         
         self.input_id.grid(column=1, row=0, sticky=W, pady=2) 
         self.input_nome.grid(column=1, row=1, sticky=W, pady=2) 
@@ -263,7 +263,6 @@ class Controle_funcionario():
             with open ('funcionarios.pickle', 'wb') as file:
                 pickle.dump(self.lista_funcionarios, file)
                 
-                self.aumento.destroy()
                                 
     def deleta_funcionario(self):
         identidade = self.consulta.listbox.get(ACTIVE)
@@ -283,8 +282,7 @@ class Controle_funcionario():
         lista_dados_funcionario = self.get_id_funcionarios()
         self.consulta = Consulta_funcionario(self, lista_dados_funcionario)
         
-    #Abre a tela para gerenciar o salario do funcionário
-    def gerir_salario(self): #passar nome, identidade e salario para a classe Aumento
+    def gerir_salario(self): #Abre a tela para gerenciar o salario do funcionário
         identidade = self.consulta.listbox.get(ACTIVE)
         
         for funcionario in self.lista_funcionarios:
@@ -293,7 +291,7 @@ class Controle_funcionario():
                 nome = funcionario.nome
                 salario = funcionario.salario
         
-        self.aumento = Aumento(self, identidade, nome, salario)
+        self.aumento = Aumento(self, identidade, nome, salario) #passa nome, identidade e salario para a classe Aumento
         
         
     def definir_salario(self): #confirmação da alteração de salario
@@ -316,6 +314,7 @@ class Controle_funcionario():
                 
                 self.mostra_janela('Sucesso', 'Salário alterado com sucesso')
                 
+                self.aumento.destroy()
 
         except ValueError as erro:
             self.mostra_janela('Erro', erro)
@@ -367,6 +366,9 @@ class Controle_funcionario():
                 self.lista_funcionarios.append(Funcionario(identidade, nome, idade, email, cpf, salario, data_adimissão))
 
                 self.mostra_janela('Sucesso', 'Funcionário Cadastrado com Sucesso')
+                
+                #criar um botão para cadastrar e salvar colocando o metodo salva_dados_funcionarios no enter_handler
+                self.salva_dados_funcionarios()
                 
                 self.limpa_texto()   
                 
