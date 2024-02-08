@@ -1,9 +1,8 @@
-from tkinter import *
-from datetime import *
+import tkinter as tk
 from tkinter import messagebox
+from datetime import datetime
 import pickle, os.path, re
 from email_validator import validate_email
-from validate_docbr import CPF
 
 date = datetime.now()
 data = date.strftime('%d/%m/%Y\n %H:%M')
@@ -117,10 +116,10 @@ class Funcionario():
             self.__salario = salario
 
 
-class Aumento(Toplevel):
+class Aumento(tk.Toplevel):
     def __init__(self, controle, identidade, nome, salario):
         
-        Toplevel.__init__(self)
+        tk.Toplevel.__init__(self)
         self.controle = controle
         
         self.title('Alterar salário')
@@ -128,18 +127,18 @@ class Aumento(Toplevel):
         self.configure(bg='light blue')
         self.resizable(False, False)        
 
-        self.frame_borda = Frame(self, bg='light blue', borderwidth=1, relief='raised')
-        self.frame_botao = Frame(self)
-        self.frame_novo_salario = Frame(self, bg='light blue')
+        self.frame_borda = tk.Frame(self, bg='light blue', borderwidth=1, relief='raised')
+        self.frame_botao = tk.Frame(self)
+        self.frame_novo_salario = tk.Frame(self, bg='light blue')
         
-        self.identidade = Label(self.frame_borda, text=f'Funcionário {identidade}', bg='light blue')
-        self.nome = Label(self.frame_borda, text=f'{nome}  ', bg='light blue')
-        self.salario = Label(self.frame_borda, text=f'Salário Atual: R${salario}', bg='light blue')
-        self.input_novo_salario = Label(self.frame_novo_salario, text='Inserir Novo Salário ', bg='light blue')
+        self.identidade = tk.Label(self.frame_borda, text=f'Funcionário {identidade}', bg='light blue')
+        self.nome = tk.Label(self.frame_borda, text=f'{nome}  ', bg='light blue')
+        self.salario = tk.Label(self.frame_borda, text=f'Salário Atual: R${salario}', bg='light blue')
+        self.input_novo_salario = tk.Label(self.frame_novo_salario, text='Inserir Novo Salário ', bg='light blue')
         
-        self.novo_salario = Entry(self.frame_novo_salario)
+        self.novo_salario = tk.Entry(self.frame_novo_salario)
         
-        self.botao = Button(self.frame_botao, text='Confirmar Alteração', command=controle.definir_salario) #Passar o def conrirmar alteração
+        self.botao = tk.Button(self.frame_botao, text='Confirmar Alteração', command=controle.definir_salario) #Passar o def conrirmar alteração
         
         self.frame_borda.pack()
         self.frame_novo_salario.pack()
@@ -149,14 +148,14 @@ class Aumento(Toplevel):
         self.nome.pack(side='left', pady=5)
         self.salario.pack(side='left', pady=5)
         self.input_novo_salario.pack(side='left')
-        self.novo_salario.pack(anchor=CENTER, pady=35, padx=5) #pady e padx para o botão ficar no centro
+        self.novo_salario.pack(anchor=tk.CENTER, pady=35, padx=5) #pady e padx para o botão ficar no centro
         self.botao.pack()
-        
+
                 
-class Cadastra_funcionario(Toplevel):
+class Cadastra_funcionario(tk.Toplevel):
     def __init__(self, controle):
         
-        Toplevel.__init__(self)
+        tk.Toplevel.__init__(self)
         self.controle = controle
         
         self.title('Cadastrar')
@@ -164,54 +163,54 @@ class Cadastra_funcionario(Toplevel):
         self.configure(bg='light blue')
         self.resizable(False, False)
         
-        self.frame_borda = Frame(self, bg='light blue', borderwidth=1, relief='flat')
-        self.frame_botao = Frame(self, bg='light blue')
-        self.frame_data = Frame(self)
+        self.frame_borda = tk.Frame(self, bg='light blue', borderwidth=1, relief='flat')
+        self.frame_botao = tk.Frame(self, bg='light blue')
+        self.frame_data = tk.Frame(self)
 
-        self.data = Label(self.frame_data, text=f'{data}', bg='light blue')
-        self.id = Label(self.frame_borda, text='Nº ID:', bg='light blue', foreground='#000')
-        self.nome = Label(self.frame_borda, text='Nome:', bg='light blue', foreground='#000')
-        self.idade = Label(self.frame_borda, text='Idade:', bg='light blue', foreground='#000')
-        self.email = Label(self.frame_borda, text='Email:', bg='light blue', foreground='#000')
-        self.cpf = Label(self.frame_borda, text='CPF:', bg='light blue', foreground='#000')
-        self.salario = Label(self.frame_borda, text='Salário: ', bg='light blue', foreground='#000')
+        self.data = tk.Label(self.frame_data, text=f'{data}', bg='light blue')
+        self.id = tk.Label(self.frame_borda, text='Nº ID:', bg='light blue', foreground='#000')
+        self.nome = tk.Label(self.frame_borda, text='Nome:', bg='light blue', foreground='#000')
+        self.idade = tk.Label(self.frame_borda, text='Idade:', bg='light blue', foreground='#000')
+        self.email = tk.Label(self.frame_borda, text='Email:', bg='light blue', foreground='#000')
+        self.cpf = tk.Label(self.frame_borda, text='CPF:', bg='light blue', foreground='#000')
+        self.salario = tk.Label(self.frame_borda, text='Salário: ', bg='light blue', foreground='#000')
         
-        self.cadastrar = Button(self.frame_botao, text='Cadastrar', command=controle.enter_handler)
-        self.sair = Button(self.frame_botao, text='Sair', command=controle.salva_dados_funcionarios)
+        self.cadastrar = tk.Button(self.frame_botao, text='Cadastrar', command=controle.enter_handler)
+        self.sair = tk.Button(self.frame_botao, text='Sair', command=controle.salva_dados_funcionarios)
         
-        self.input_id = Entry(self.frame_borda, width=10)
-        self.input_nome = Entry(self.frame_borda, width=30)
-        self.input_idade = Entry(self.frame_borda, width=10)
-        self.input_email = Entry(self.frame_borda, width=30)
-        self.input_cpf = Entry(self.frame_borda, width=30)
-        self.input_salario = Entry(self.frame_borda, width=10)
-
+        self.input_id = tk.Entry(self.frame_borda, width=10)
+        self.input_nome =tk.Entry(self.frame_borda, width=30)
+        self.input_idade = tk.Entry(self.frame_borda, width=10)
+        self.input_email = tk.Entry(self.frame_borda, width=30)
+        self.input_cpf = tk.Entry(self.frame_borda, width=30)
+        self.input_salario = tk.Entry(self.frame_borda, width=10)
         self.frame_data.pack(side='top', pady=5)
-        self.frame_borda.pack(anchor=CENTER)
+        self.frame_borda.pack(anchor=tk.CENTER)
         self.frame_botao.pack(side='bottom', pady=5)
         
         self.data.pack()
-        self.id.grid(column=0, row=0, sticky=W, pady=2)
-        self.nome.grid(column=0, row=1, sticky=W, pady=2)
-        self.idade.grid(column=0, row=2, sticky=W, pady=2)
-        self.email.grid(column=0, row=3, sticky=W, pady=2) 
-        self.cpf.grid(column=0, row=4, sticky=W, pady=2) 
-        self.salario.grid(column=0, row=5, sticky=W, pady=2)
+        self.id.grid(column=0, row=0, sticky=tk.W, pady=2)
+        self.nome.grid(column=0, row=1, sticky=tk.W, pady=2)
+        self.idade.grid(column=0, row=2, sticky=tk.W, pady=2)
+        self.email.grid(column=0, row=3, sticky=tk.W, pady=2) 
+        self.cpf.grid(column=0, row=4, sticky=tk.W, pady=2) 
+        self.salario.grid(column=0, row=5, sticky=tk.W, pady=2)
         
-        self.cadastrar.grid(column=0, row=6, sticky=W, pady=2, padx=2) 
-        self.sair.grid(column=1, row=6, sticky=W, pady=2, padx=2)
+        self.cadastrar.grid(column=0, row=6, sticky=tk.W, pady=2, padx=2) 
+        self.sair.grid(column=1, row=6, sticky=tk.W, pady=2, padx=2)
         
-        self.input_id.grid(column=1, row=0, sticky=W, pady=2) 
-        self.input_nome.grid(column=1, row=1, sticky=W, pady=2) 
-        self.input_idade.grid(column=1, row=2, sticky=W, pady=2)  
-        self.input_email.grid(column=1, row=3, sticky=W, pady=2) 
-        self.input_cpf.grid(column=1, row=4, sticky=W, pady=2) 
-        self.input_salario.grid(column=1, row=5, sticky=W, pady=2) 
+        self.input_id.grid(column=1, row=0, sticky=tk.W, pady=2) 
+        self.input_nome.grid(column=1, row=1, sticky=tk.W, pady=2) 
+        self.input_idade.grid(column=1, row=2, sticky=tk.W, pady=2)  
+        self.input_email.grid(column=1, row=3, sticky=tk.W, pady=2) 
+        self.input_cpf.grid(column=1, row=4, sticky=tk.W, pady=2) 
+        self.input_salario.grid(column=1, row=5, sticky=tk.W, pady=2)
 
-class Consulta_funcionario(Toplevel):
+
+class Consulta_funcionario(tk.Toplevel):
     def __init__(self, controle, lista_funcionarios):
         
-        Toplevel.__init__(self)
+        tk.Toplevel.__init__(self)
         self.controle = controle
         
         self.title('Consultar')
@@ -219,15 +218,15 @@ class Consulta_funcionario(Toplevel):
         self.configure(bg='light blue')
         self.resizable(False, False)
         
-        self.frame_listbox = Frame(self, bg='light blue')
-        self.frame_botao = Frame(self, bg='light blue')
+        self.frame_listbox = tk.Frame(self, bg='light blue')
+        self.frame_botao = tk.Frame(self, bg='light blue')
         
-        self.nome = Label(self.frame_listbox, text='Funcionários:', bg='light blue')
+        self.nome = tk.Label(self.frame_listbox, text='Funcionários:', bg='light blue')
         
-        self.alterar_salario = Button(self.frame_botao, text='Alterar Salário', command=controle.gerir_salario) #abre a tela para alterar o salario do funcionario
-        self.deleta = Button(self.frame_botao, text='Deletar', command=controle.deleta_funcionario)
+        self.alterar_salario = tk.Button(self.frame_botao, text='Alterar Salário', command=controle.gerir_salario) #abre a tela para alterar o salario do funcionario
+        self.deleta = tk.Button(self.frame_botao, text='Deletar', command=controle.deleta_funcionario)
         
-        self.listbox = Listbox(self.frame_listbox, width=20, height=10)
+        self.listbox = tk.Listbox(self.frame_listbox, width=20, height=10)
         
         self.listbox.bind('<Double-1>', controle.mostra_funcionario)#Passar um metodo double click
         
@@ -243,8 +242,7 @@ class Consulta_funcionario(Toplevel):
         self.deleta.pack(side='right', padx=5, pady=12)
         
         self.nome.pack(side='top')
-        
-        
+
 class Controle_funcionario():
     def __init__(self):
                 
@@ -265,7 +263,7 @@ class Controle_funcionario():
                 
                                 
     def deleta_funcionario(self):
-        identidade = self.consulta.listbox.get(ACTIVE)
+        identidade = self.consulta.listbox.get(tk.ACTIVE)
         
         for funcionario in self.lista_funcionarios:
             if identidade[1] == funcionario.identidade:
@@ -276,14 +274,14 @@ class Controle_funcionario():
                 self.mostra_janela('Sucesso', 'Funcionário deletado com sucesso')
                 
                 #faz o funcionário sair da lista de funcionários
-                self.consulta.listbox.delete(ACTIVE)
+                self.consulta.listbox.delete(tk.ACTIVE)
         
     def consulta_funcionario(self):
         lista_dados_funcionario = self.get_id_funcionarios()
         self.consulta = Consulta_funcionario(self, lista_dados_funcionario)
         
     def gerir_salario(self): #Abre a tela para gerenciar o salario do funcionário
-        identidade = self.consulta.listbox.get(ACTIVE)
+        identidade = self.consulta.listbox.get(tk.ACTIVE)
         
         for funcionario in self.lista_funcionarios:
             if identidade[1] == funcionario.identidade:
@@ -296,7 +294,7 @@ class Controle_funcionario():
         
     def definir_salario(self): #confirmação da alteração de salario
         novo_salario = self.aumento.novo_salario.get()
-        identidade = self.consulta.listbox.get(ACTIVE)
+        identidade = self.consulta.listbox.get(tk.ACTIVE)
 
         try:
             if len(novo_salario) <= 0:
@@ -386,7 +384,7 @@ class Controle_funcionario():
         return self.lista_dados_funcionario
 
     def mostra_funcionario(self, event):
-        funcionario = self.consulta.listbox.get(ACTIVE)
+        funcionario = self.consulta.listbox.get(tk.ACTIVE)
         
         for info in self.lista_funcionarios:
             if funcionario[1] == info.identidade:
@@ -405,10 +403,10 @@ class Controle_funcionario():
         messagebox.showinfo(titulo, menssagem)
     
     def limpa_texto(self):
-        self.cadastro.input_id.delete(0, END)
-        self.cadastro.input_nome.delete(0, END)
-        self.cadastro.input_idade.delete(0, END)
-        self.cadastro.input_email.delete(0, END)
-        self.cadastro.input_cpf.delete(0, END)  
-        self.cadastro.input_salario.delete(0, END)
+        self.cadastro.input_id.delete(0, tk.END)
+        self.cadastro.input_nome.delete(0, tk.END)
+        self.cadastro.input_idade.delete(0, tk.END)
+        self.cadastro.input_email.delete(0, tk.END)
+        self.cadastro.input_cpf.delete(0, tk.END)  
+        self.cadastro.input_salario.delete(0, tk.END)
         

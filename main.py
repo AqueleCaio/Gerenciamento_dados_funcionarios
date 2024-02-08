@@ -1,4 +1,4 @@
-from tkinter import *
+import tkinter as tk
 import funcionario as funcionario
 
 class View_principal():
@@ -6,8 +6,8 @@ class View_principal():
         self.root = root
         self.controle = controle
         
-        self.menubar = Menu(self.root)
-        self.menu_funcionario = Menu(self.menubar)
+        self.menubar = tk.Menu(self.root)
+        self.menu_funcionario = tk.Menu(self.menubar)
         
         self.root.config(menu=self.menubar)
         
@@ -18,7 +18,7 @@ class View_principal():
 
 class Controle_principal():
     def __init__(self):
-        self.root = Tk()
+        self.root = tk.Tk()
         
         self.controle_funcionario = funcionario.Controle_funcionario()
         
