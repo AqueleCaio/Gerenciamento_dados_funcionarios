@@ -245,7 +245,7 @@ class Consulta_funcionario(tk.Toplevel):
 
 class Controle_funcionario():
     def __init__(self):
-                
+        
         if not os.path.isfile('funcionarios.pickle'):
             self.lista_funcionarios = []
 
@@ -260,6 +260,8 @@ class Controle_funcionario():
         if len(self.lista_funcionarios) != 0:
             with open ('funcionarios.pickle', 'wb') as file:
                 pickle.dump(self.lista_funcionarios, file)
+                
+                self.cadastro.destroy()
                 
                                 
     def deleta_funcionario(self):
