@@ -151,6 +151,8 @@ class Aumento(tk.Toplevel):
         self.novo_salario.pack(anchor=tk.CENTER, pady=35, padx=5) #pady e padx para o botão ficar no centro
         self.botao.pack()
 
+#ipad é o espaçamento interno do frame
+#pad é o espaçamento externo do frame
                 
 class Cadastra_funcionario(tk.Toplevel):
     def __init__(self, controle):
@@ -159,15 +161,21 @@ class Cadastra_funcionario(tk.Toplevel):
         self.controle = controle
         
         self.title('Cadastrar')
-        self.geometry('250x250')
+        self.geometry('600x400')
         self.configure(bg='light blue')
         self.resizable(False, False)
         
-        self.frame_borda = tk.Frame(self, bg='light blue', borderwidth=1, relief='flat')
-        self.frame_botao = tk.Frame(self, bg='light blue')
-        self.frame_data = tk.Frame(self)
+        self.frame_gigante = tk.Frame(self, bg='light blue', borderwidth=1, relief='solid')
+        self.frame_gigante.pack(side='left', ipadx=5, ipady=5, padx=5, pady=5)
+                
+        ##__________________________Frames__________________________________##
+        self.frame_borda = tk.Frame(self.frame_gigante, bg='light blue', borderwidth=1, relief='flat')
+        self.frame_botao = tk.Frame(self.frame_gigante, bg='light blue')
+        self.frame_cabeçalho = tk.Frame(self.frame_gigante, bg='light blue')
 
-        self.data = tk.Label(self.frame_data, text=f'{data}', bg='light blue')
+        ##__________________________Labels__________________________________##
+        self.data = tk.Label(self.frame_cabeçalho, text=f'{data}', bg='light blue')
+        self.titulo = tk.Label(self.frame_cabeçalho, text='Fomulário de Adimissão', bg='light blue', foreground='#000')
         self.id = tk.Label(self.frame_borda, text='Nº ID:', bg='light blue', foreground='#000')
         self.nome = tk.Label(self.frame_borda, text='Nome:', bg='light blue', foreground='#000')
         self.idade = tk.Label(self.frame_borda, text='Idade:', bg='light blue', foreground='#000')
@@ -175,20 +183,29 @@ class Cadastra_funcionario(tk.Toplevel):
         self.cpf = tk.Label(self.frame_borda, text='CPF:', bg='light blue', foreground='#000')
         self.salario = tk.Label(self.frame_borda, text='Salário: ', bg='light blue', foreground='#000')
         
+        ##__________________________Configuração de Labels__________________________________##
+        self.titulo.config(font=('Arial', 13, 'bold'))
+        
+        ##__________________________Buttons__________________________________##
         self.cadastrar = tk.Button(self.frame_botao, text='Cadastrar', command=controle.enter_handler)
         self.sair = tk.Button(self.frame_botao, text='Sair', command=controle.salva_dados_funcionarios)
         
+        ##__________________________Entries__________________________________##
         self.input_id = tk.Entry(self.frame_borda, width=10)
         self.input_nome =tk.Entry(self.frame_borda, width=30)
         self.input_idade = tk.Entry(self.frame_borda, width=10)
         self.input_email = tk.Entry(self.frame_borda, width=30)
         self.input_cpf = tk.Entry(self.frame_borda, width=30)
         self.input_salario = tk.Entry(self.frame_borda, width=10)
-        self.frame_data.pack(side='top', pady=5)
-        self.frame_borda.pack(anchor=tk.CENTER)
-        self.frame_botao.pack(side='bottom', pady=5)
         
+        ##__________________________Packs dos Frames__________________________________##
+        self.frame_botao.pack(side='bottom', pady=5)
+        self.frame_cabeçalho.pack(side='top', pady=5)
+        self.frame_borda.pack(anchor=tk.CENTER)
+        
+        ##__________________________Grid dos Labels__________________________________##
         self.data.pack()
+        self.titulo.pack()
         self.id.grid(column=0, row=0, sticky=tk.W, pady=2)
         self.nome.grid(column=0, row=1, sticky=tk.W, pady=2)
         self.idade.grid(column=0, row=2, sticky=tk.W, pady=2)
@@ -196,9 +213,11 @@ class Cadastra_funcionario(tk.Toplevel):
         self.cpf.grid(column=0, row=4, sticky=tk.W, pady=2) 
         self.salario.grid(column=0, row=5, sticky=tk.W, pady=2)
         
+        ##__________________________Grid dos Buttons__________________________________##
         self.cadastrar.grid(column=0, row=6, sticky=tk.W, pady=2, padx=2) 
         self.sair.grid(column=1, row=6, sticky=tk.W, pady=2, padx=2)
         
+        ##__________________________Grid dos Entries__________________________________##
         self.input_id.grid(column=1, row=0, sticky=tk.W, pady=2) 
         self.input_nome.grid(column=1, row=1, sticky=tk.W, pady=2) 
         self.input_idade.grid(column=1, row=2, sticky=tk.W, pady=2)  
