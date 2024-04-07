@@ -13,7 +13,6 @@ class View_principal():
         
         self.menubar.add_cascade(label='Opções', menu=self.menu_funcionario)
         self.menu_funcionario.add_command(label='Cadastrar Funcionário', command=controle.insere_funcionario)
-        self.menu_funcionario.add_command(label='Consultar Funcionário', command=controle.consulta_funcionario)
 
 
 class Controle_principal():
@@ -32,9 +31,6 @@ class Controle_principal():
         
     def insere_funcionario(self):
         self.controle_funcionario.insere_funcionario()
-        
-    def consulta_funcionario(self):
-        self.controle_funcionario.consulta_funcionario()
         
 if __name__ == '__main__':
     exec = Controle_principal()

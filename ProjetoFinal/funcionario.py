@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, simpledialog
 from datetime import datetime
 import pickle, os.path, re
 from email_validator import validate_email
@@ -116,58 +116,28 @@ class Funcionario():
             self.__salario = salario
 
 
-class Aumento(tk.Toplevel):
-    def __init__(self, controle, identidade, nome, salario):
+class Dados(tk.Toplevel): # Classe da tela para alterar os dados do funcionário
+    def __init__(self, controle, identidade, nome, idade, email, cpf, salario):
         
         tk.Toplevel.__init__(self)
         self.controle = controle
         
         self.title('Alterar salário')
-        self.geometry('350x150')
+        self.geometry('350x400')
         self.configure(bg='light blue')
         self.resizable(False, False)        
+        
+        self.frame_forms_alterar = tk.Frame(self, bg='light blue', borderwidth=1, relief='solid')
+        self.frame_forms_alterar.pack(padx=50, pady=50, ipadx=10, ipady=10)
 
-        self.frame_borda = tk.Frame(self, bg='light blue', borderwidth=1, relief='raised')
-        self.frame_botao = tk.Frame(self)
-        self.frame_novo_salario = tk.Frame(self, bg='light blue')
+        self.frame_cabeçalho = tk.Frame(self.frame_forms_alterar, bg='light blue')
+        self.frame_borda = tk.Frame(self.frame_forms_alterar, bg='light blue')
+        self.frame_botao = tk.Frame(self.frame_forms_alterar, bg='light blue')
         
-        self.identidade = tk.Label(self.frame_borda, text=f'Funcionário {identidade}', bg='light blue')
-        self.nome = tk.Label(self.frame_borda, text=f'{nome}  ', bg='light blue')
-        self.salario = tk.Label(self.frame_borda, text=f'Salário Atual: R${salario}', bg='light blue')
-        self.input_novo_salario = tk.Label(self.frame_novo_salario, text='Inserir Novo Salário ', bg='light blue')
         
-        self.novo_salario = tk.Entry(self.frame_novo_salario)
-        
-        self.botao = tk.Button(self.frame_botao, text='Confirmar Alteração', command=controle.definir_salario) #Passar o def conrirmar alteração
-        
-        self.frame_borda.pack()
-        self.frame_novo_salario.pack()
-        self.frame_botao.pack(side='bottom')
-        
-        self.identidade.pack(side='left', pady=5)
-        self.nome.pack(side='left', pady=5)
-        self.salario.pack(side='left', pady=5)
-        self.input_novo_salario.pack(side='left')
-        self.novo_salario.pack(anchor=tk.CENTER, pady=35, padx=5) #pady e padx para o botão ficar no centro
-        self.botao.pack()
-
-                
-class Cadastra_funcionario(tk.Toplevel):
-    def __init__(self, controle):
-        
-        tk.Toplevel.__init__(self)
-        self.controle = controle
-        
-        self.title('Cadastrar')
-        self.geometry('250x250')
-        self.configure(bg='light blue')
-        self.resizable(False, False)
-        
-        self.frame_borda = tk.Frame(self, bg='light blue', borderwidth=1, relief='flat')
-        self.frame_botao = tk.Frame(self, bg='light blue')
-        self.frame_data = tk.Frame(self)
-
-        self.data = tk.Label(self.frame_data, text=f'{data}', bg='light blue')
+        ##__________________________Labels__________________________________##        
+        self.data = tk.Label(self.frame_cabeçalho, text=f'{data}', bg='light blue')
+        self.titulo = tk.Label(self.frame_cabeçalho, text=f'Atuais dados de {nome}', bg='light blue', foreground='#000')
         self.id = tk.Label(self.frame_borda, text='Nº ID:', bg='light blue', foreground='#000')
         self.nome = tk.Label(self.frame_borda, text='Nome:', bg='light blue', foreground='#000')
         self.idade = tk.Label(self.frame_borda, text='Idade:', bg='light blue', foreground='#000')
@@ -175,30 +145,53 @@ class Cadastra_funcionario(tk.Toplevel):
         self.cpf = tk.Label(self.frame_borda, text='CPF:', bg='light blue', foreground='#000')
         self.salario = tk.Label(self.frame_borda, text='Salário: ', bg='light blue', foreground='#000')
         
-        self.cadastrar = tk.Button(self.frame_botao, text='Cadastrar', command=controle.enter_handler)
-        self.sair = tk.Button(self.frame_botao, text='Sair', command=controle.salva_dados_funcionarios)
         
+        ##__________________________Entries__________________________________##
         self.input_id = tk.Entry(self.frame_borda, width=10)
         self.input_nome =tk.Entry(self.frame_borda, width=30)
         self.input_idade = tk.Entry(self.frame_borda, width=10)
         self.input_email = tk.Entry(self.frame_borda, width=30)
         self.input_cpf = tk.Entry(self.frame_borda, width=30)
         self.input_salario = tk.Entry(self.frame_borda, width=10)
-        self.frame_data.pack(side='top', pady=5)
-        self.frame_borda.pack(anchor=tk.CENTER)
-        self.frame_botao.pack(side='bottom', pady=5)
         
+        ##_________________________Inserts__________________________________##
+        '''
+        Insere os dados do funcionário nos campos de entrada para serem alterados 
+        pelo usuário.
+        '''
+        self.input_id.insert(0, identidade)
+        self.input_nome.insert(0, nome)
+        self.input_idade.insert(0, idade)
+        self.input_email.insert(0, email)
+        self.input_cpf.insert(0, cpf)
+        self.input_salario.insert(0, salario)
+        
+        
+        ##__________________________Botões__________________________________##
+        self.confirmar = tk.Button(self.frame_botao, text='Confirmar Alteração', command=controle.definir_dados)
+        
+        
+        ##__________________________Frames__________________________________##
+        self.frame_cabeçalho.pack()
+        self.frame_borda.pack()
+        self.frame_botao.pack(padx=5, pady=10)
+        
+        
+        ##__________________________Grid dos Labels__________________________________##
         self.data.pack()
-        self.id.grid(column=0, row=0, sticky=tk.W, pady=2)
-        self.nome.grid(column=0, row=1, sticky=tk.W, pady=2)
-        self.idade.grid(column=0, row=2, sticky=tk.W, pady=2)
-        self.email.grid(column=0, row=3, sticky=tk.W, pady=2) 
-        self.cpf.grid(column=0, row=4, sticky=tk.W, pady=2) 
-        self.salario.grid(column=0, row=5, sticky=tk.W, pady=2)
+        self.titulo.pack(padx=5, pady=4)
         
-        self.cadastrar.grid(column=0, row=6, sticky=tk.W, pady=2, padx=2) 
-        self.sair.grid(column=1, row=6, sticky=tk.W, pady=2, padx=2)
+        self.id.grid(column=0, row=0, sticky=tk.W, pady=5)
+        self.nome.grid(column=0, row=1, sticky=tk.W, pady=5)
+        self.idade.grid(column=0, row=2, sticky=tk.W, pady=5)
+        self.email.grid(column=0, row=3, sticky=tk.W, pady=5) 
+        self.cpf.grid(column=0, row=4, sticky=tk.W, pady=5) 
+        self.salario.grid(column=0, row=5, sticky=tk.W, pady=5)
         
+        ##__________________________Grid dos Buttons__________________________________##
+        self.confirmar.grid(column=0, row=6, sticky=tk.W, pady=5, padx=5) 
+        
+        ##__________________________Grid dos Entries__________________________________##
         self.input_id.grid(column=1, row=0, sticky=tk.W, pady=2) 
         self.input_nome.grid(column=1, row=1, sticky=tk.W, pady=2) 
         self.input_idade.grid(column=1, row=2, sticky=tk.W, pady=2)  
@@ -206,42 +199,113 @@ class Cadastra_funcionario(tk.Toplevel):
         self.input_cpf.grid(column=1, row=4, sticky=tk.W, pady=2) 
         self.input_salario.grid(column=1, row=5, sticky=tk.W, pady=2)
 
-
-class Consulta_funcionario(tk.Toplevel):
+#ipad é o espaçamento interno do frame
+#pad é o espaçamento externo do frame
+                
+class Cadastra_funcionario(tk.Toplevel):
     def __init__(self, controle, lista_funcionarios):
         
         tk.Toplevel.__init__(self)
         self.controle = controle
         
-        self.title('Consultar')
-        self.geometry('250x250')
+        self.title('Cadastrar')
+        self.geometry('600x400')
         self.configure(bg='light blue')
-        self.resizable(False, False)
+        self.resizable(False, False) 
         
-        self.frame_listbox = tk.Frame(self, bg='light blue')
-        self.frame_botao = tk.Frame(self, bg='light blue')
+        ##__________________________Frames principal da esquerda__________________________________##
+        self.frame_forms = tk.Frame(self, bg='light blue', borderwidth=1, relief='solid') 
+        self.frame_forms.pack(side='left', padx=20, ipadx=10, ipady=17)
         
-        self.nome = tk.Label(self.frame_listbox, text='Funcionários:', bg='light blue')
+        ##__________________________Frames principal da direita__________________________________##
+        self.frame_lista = tk.Frame(self, bg='light blue') 
+        self.frame_lista.pack(side='right', padx=20, ipadx=10, ipady=10)
+                
+        ##__________________________Frames__________________________________##
+        self.frame_borda = tk.Frame(self.frame_forms, bg='light blue', borderwidth=1, relief='flat')
+        self.frame_botao = tk.Frame(self.frame_forms, bg='light blue')
+        self.frame_cabeçalho = tk.Frame(self.frame_forms, bg='light blue')
         
-        self.alterar_salario = tk.Button(self.frame_botao, text='Alterar Salário', command=controle.gerir_salario) #abre a tela para alterar o salario do funcionario
+        self.frame_listbox = tk.Frame(self.frame_lista, bg='light blue')
+        self.frame_cabeçalho_list = tk.Frame(self.frame_lista, bg='light blue')
+        self.frame_botao_alterar = tk.Frame(self.frame_lista, bg='light blue')
+        
+        ##__________________________Labels__________________________________##
+        self.data = tk.Label(self.frame_cabeçalho, text=f'{data}', bg='light blue')
+        self.titulo = tk.Label(self.frame_cabeçalho, text='Fomulário de Adimissão', bg='light blue', foreground='#000')
+        self.titulo_list = tk.Label(self.frame_cabeçalho_list, text='Lista de Funcionários', bg='light blue', foreground='#000')
+        self.id = tk.Label(self.frame_borda, text='Nº ID:', bg='light blue', foreground='#000')
+        self.nome = tk.Label(self.frame_borda, text='Nome:', bg='light blue', foreground='#000')
+        self.idade = tk.Label(self.frame_borda, text='Idade:', bg='light blue', foreground='#000')
+        self.email = tk.Label(self.frame_borda, text='Email:', bg='light blue', foreground='#000')
+        self.cpf = tk.Label(self.frame_borda, text='CPF:', bg='light blue', foreground='#000')
+        self.salario = tk.Label(self.frame_borda, text='Salário: ', bg='light blue', foreground='#000')
+        
+        
+        ##__________________________Configuração de Labels__________________________________##
+        self.titulo.config(font=('Arial', 13, 'bold'))
+        self.titulo_list.config(font=('Arial', 13, 'bold'))
+        
+        ##__________________________Buttons__________________________________##
+        self.cadastrar = tk.Button(self.frame_botao, text='Cadastrar', command=controle.enter_handler)
         self.deleta = tk.Button(self.frame_botao, text='Deletar', command=controle.deleta_funcionario)
         
-        self.listbox = tk.Listbox(self.frame_listbox, width=20, height=10)
+        self.botao_alterar = tk.Button(self.frame_listbox, text='Alterar Dados', command=controle.gerir_dados)
         
-        self.listbox.bind('<Double-1>', controle.mostra_funcionario)#Passar um metodo double click
+        ##__________________________Entries__________________________________##
+        self.input_id = tk.Entry(self.frame_borda, width=10)
+        self.input_nome =tk.Entry(self.frame_borda, width=30)
+        self.input_idade = tk.Entry(self.frame_borda, width=10)
+        self.input_email = tk.Entry(self.frame_borda, width=30)
+        self.input_cpf = tk.Entry(self.frame_borda, width=30)
+        self.input_salario = tk.Entry(self.frame_borda, width=10)
         
+        ##__________________________Listbox__________________________________##
+        self.listbox = tk.Listbox(self.frame_listbox, width=27, height=16)
+                    
+        self.listbox.bind('<Double-1>', lambda event: controle.on_listbox_select(event, self.listbox))#Passar um metodo double click
+
+        #Loop para carregar a lista de funcionários na listbox assim que a tela abre
         for funcionarios in lista_funcionarios:
-            self.listbox.insert(0, funcionarios)  
+            self.listbox.insert(0, funcionarios) 
             
-        self.frame_listbox.pack()
-        self.frame_botao.pack(side='bottom')
-                
-        self.listbox.pack(side='bottom')
+        ##__________________________Pack do Listbox__________________________________##
+        self.titulo_list.pack()
+        self.listbox.pack()
+         
+        ##__________________________Packs dos Frames__________________________________##
+        self.frame_botao_alterar.pack(side='bottom', pady=5) #Botão de alterar do frame_lista (lado direito)
+        self.frame_botao.pack(side='bottom', pady=5) #Botões de cadastrar e deletar do frame_forms (lado esquerdo)
+        self.frame_cabeçalho.pack(side='top', pady=5)
+        self.frame_borda.pack(anchor=tk.CENTER)
+        self.frame_listbox.pack(side='bottom', padx=50)
+        self.frame_cabeçalho_list.pack(side='top', pady=5)
         
-        self.alterar_salario.pack(side='right', padx=5, pady=12)
-        self.deleta.pack(side='right', padx=5, pady=12)
+        ##__________________________Grid dos Labels__________________________________##
+        self.data.pack()
+        self.titulo.pack()
         
-        self.nome.pack(side='top')
+        self.id.grid(column=0, row=0, sticky=tk.W, pady=5)
+        self.nome.grid(column=0, row=1, sticky=tk.W, pady=5)
+        self.idade.grid(column=0, row=2, sticky=tk.W, pady=5)
+        self.email.grid(column=0, row=3, sticky=tk.W, pady=5) 
+        self.cpf.grid(column=0, row=4, sticky=tk.W, pady=5) 
+        self.salario.grid(column=0, row=5, sticky=tk.W, pady=5)
+        
+        ##__________________________Grid dos Buttons__________________________________##
+        self.cadastrar.grid(column=0, row=6, sticky=tk.W, pady=2, padx=5) 
+        self.deleta.grid(column=1, row=6, sticky=tk.W, pady=2, padx=5)
+        
+        self.botao_alterar.pack(side='bottom', pady=10)
+        
+        ##__________________________Grid dos Entries__________________________________##
+        self.input_id.grid(column=1, row=0, sticky=tk.W, pady=2) 
+        self.input_nome.grid(column=1, row=1, sticky=tk.W, pady=2) 
+        self.input_idade.grid(column=1, row=2, sticky=tk.W, pady=2)  
+        self.input_email.grid(column=1, row=3, sticky=tk.W, pady=2) 
+        self.input_cpf.grid(column=1, row=4, sticky=tk.W, pady=2) 
+        self.input_salario.grid(column=1, row=5, sticky=tk.W, pady=2)
+
 
 class Controle_funcionario():
     def __init__(self):
@@ -254,18 +318,17 @@ class Controle_funcionario():
                 self.lista_funcionarios = pickle.load(file)  
                 
     def insere_funcionario(self):
-        self.cadastro = Cadastra_funcionario(self)
+        lista_dados_funcionario = self.get_id_funcionarios()
+        self.cadastro = Cadastra_funcionario(self, lista_dados_funcionario)
                 
     def salva_dados_funcionarios(self):
         if len(self.lista_funcionarios) != 0:
             with open ('funcionarios.pickle', 'wb') as file:
                 pickle.dump(self.lista_funcionarios, file)
-                
-                self.cadastro.destroy()
-                
-                                
+      
+                                         
     def deleta_funcionario(self):
-        identidade = self.consulta.listbox.get(tk.ACTIVE)
+        identidade = self.cadastro.listbox.get(tk.ACTIVE)
         
         for funcionario in self.lista_funcionarios:
             if identidade[1] == funcionario.identidade:
@@ -276,49 +339,56 @@ class Controle_funcionario():
                 self.mostra_janela('Sucesso', 'Funcionário deletado com sucesso')
                 
                 #faz o funcionário sair da lista de funcionários
-                self.consulta.listbox.delete(tk.ACTIVE)
+                self.cadastro.listbox.delete(tk.ACTIVE)
+     
         
-    def consulta_funcionario(self):
-        lista_dados_funcionario = self.get_id_funcionarios()
-        self.consulta = Consulta_funcionario(self, lista_dados_funcionario)
-        
-    def gerir_salario(self): #Abre a tela para gerenciar o salario do funcionário
-        identidade = self.consulta.listbox.get(tk.ACTIVE)
+    def gerir_dados(self): #Abre a tela para gerenciar os dados do funcionário
+        identidade = self.cadastro.listbox.get(tk.ACTIVE)
         
         for funcionario in self.lista_funcionarios:
             if identidade[1] == funcionario.identidade:
                 identidade = funcionario.identidade
                 nome = funcionario.nome
+                idade = funcionario.idade
+                email = funcionario.email
+                cpf = funcionario.cpf
                 salario = funcionario.salario
         
-        self.aumento = Aumento(self, identidade, nome, salario) #passa nome, identidade e salario para a classe Aumento
+        self.tela_dados = Dados(self, identidade, nome, idade, email, cpf, salario) #passa nome, identidade e salario para a classe tela_dados
         
         
-    def definir_salario(self): #confirmação da alteração de salario
-        novo_salario = self.aumento.novo_salario.get()
-        identidade = self.consulta.listbox.get(tk.ACTIVE)
-
-        try:
-            if len(novo_salario) <= 0:
-                raise ValueError('Nenhum salário foi indicado')
+    def definir_dados(self): #confirmação da alteração dos dados
+        identidade = self.tela_dados.input_id.get()
+        nome = self.tela_dados.input_nome.get()
+        idade = self.tela_dados.input_idade.get()
+        email = self.tela_dados.input_email.get()
+        cpf = self.tela_dados.input_cpf.get()
+        salario = self.tela_dados.input_salario.get()
             
-            elif int(novo_salario) < 500:
-                raise ValueError('Salário inválido')
-        
-            else:
+        resposta = messagebox.askyesno('Confirmação', 'Deseja realmente alterar os dados?')    
+        try:
+            if resposta == True:
                 for funcionario in self.lista_funcionarios:
-                    if identidade[1] == funcionario.identidade:
-                        funcionario.salario = novo_salario  
+                    if identidade == funcionario.identidade:
+                        funcionario.identidade = identidade
+                        funcionario.nome = nome
+                        funcionario.idade = idade
+                        funcionario.email = email
+                        funcionario.cpf = cpf
+                        funcionario.salario = salario
                 
-                self.salva_dados_funcionarios() #Salva as novas alterações feitas no salário do funcionário
-                
-                self.mostra_janela('Sucesso', 'Salário alterado com sucesso')
-                
-                self.aumento.destroy()
-
+                        self.salva_dados_funcionarios() #Salva as novas alterações feitas no salário do funcionário
+                        
+                        self.mostra_janela('Sucesso', 'Dado(s) alterado(s) com sucesso!')
+                        
+                        self.tela_dados.destroy()   
+            else:
+                pass
+            
         except ValueError as erro:
             self.mostra_janela('Erro', erro)
         
+    #Método que insere o funcionário na lista de funcionários
     def enter_handler(self):
         identidade = self.cadastro.input_id.get()
         nome = self.cadastro.input_nome.get()
@@ -365,6 +435,11 @@ class Controle_funcionario():
             else: 
                 self.lista_funcionarios.append(Funcionario(identidade, nome, idade, email, cpf, salario, data_adimissão))
 
+                identidade = 'Nº:', identidade
+
+                # Atualiza a listbox com o novo funcionário
+                self.cadastro.listbox.insert(0, identidade)
+
                 self.mostra_janela('Sucesso', 'Funcionário Cadastrado com Sucesso')
                 
                 #criar um botão para cadastrar e salvar colocando o metodo salva_dados_funcionarios no enter_handler
@@ -375,6 +450,7 @@ class Controle_funcionario():
         except ValueError as erro:
             self.mostra_janela('Erro', erro)
             
+    #Método que pega o id do funcionário para inserir na listbox
     def get_id_funcionarios(self):
         self.lista_dados_funcionario = []
         
@@ -385,11 +461,10 @@ class Controle_funcionario():
             
         return self.lista_dados_funcionario
 
-    def mostra_funcionario(self, event):
-        funcionario = self.consulta.listbox.get(tk.ACTIVE)
-        
+    #Método que mostra as informações do funcionário a partir do id
+    def mostra_funcionario(self, id_funcionario):
         for info in self.lista_funcionarios:
-            if funcionario[1] == info.identidade:
+            if id_funcionario == info.identidade:
                 info_funcionarios = f'Funcionário {info.identidade}\n\n'
                 info_funcionarios += f'Nome: {info.nome}\n\n'
                 info_funcionarios += f'Idade: {info.idade}\n\n'
@@ -400,9 +475,17 @@ class Controle_funcionario():
                 info_funcionarios += f'Salário: R${info.salario}\n\n'
                 info_funcionarios += f'Data de Adimissão: {info.data_adimissão}'
         self.mostra_janela('Funcionário', info_funcionarios)
-    
+
+
+    #Método que recebe o evento de duplo click e pega o id do funcionário
+    def on_listbox_select(self, event, listbox):
+        id_funcionario = listbox.get(tk.ACTIVE)
+        self.mostra_funcionario(id_funcionario[1])
+
+
     def mostra_janela(self, titulo, menssagem):
         messagebox.showinfo(titulo, menssagem)
+    
     
     def limpa_texto(self):
         self.cadastro.input_id.delete(0, tk.END)
