@@ -168,7 +168,7 @@ class Dados(tk.Toplevel): # Classe da tela para alterar os dados do funcionário
         
         
         ##__________________________Botões__________________________________##
-        self.confirmar = tk.Button(self.frame_botao, text='Confirmar Alteração', command=controle.definir_dados)
+        self.confirmar = tk.Button(self.frame_botao, text='Confirmar Alteração', command=controle.altera_dados)
         
         
         ##__________________________Frames__________________________________##
@@ -199,9 +199,7 @@ class Dados(tk.Toplevel): # Classe da tela para alterar os dados do funcionário
         self.input_cpf.grid(column=1, row=4, sticky=tk.W, pady=2) 
         self.input_salario.grid(column=1, row=5, sticky=tk.W, pady=2)
 
-#ipad é o espaçamento interno do frame
-#pad é o espaçamento externo do frame
-                
+              
 class Cadastra_funcionario(tk.Toplevel):
     def __init__(self, controle, lista_funcionarios):
         
@@ -357,7 +355,7 @@ class Controle_funcionario():
         self.tela_dados = Dados(self, identidade, nome, idade, email, cpf, salario) #passa nome, identidade e salario para a classe tela_dados
         
         
-    def definir_dados(self): #confirmação da alteração dos dados
+    def altera_dados(self): #confirmação da alteração dos dados
         identidade = self.tela_dados.input_id.get()
         nome = self.tela_dados.input_nome.get()
         idade = self.tela_dados.input_idade.get()
