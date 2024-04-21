@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox, simpledialog
+from tkinter import messagebox
 from datetime import datetime
 import pickle, os.path, re
 from email_validator import validate_email
