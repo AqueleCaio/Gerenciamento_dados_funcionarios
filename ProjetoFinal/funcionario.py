@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox, simpledialog
+from tkinter import messagebox
 from datetime import datetime
 import pickle, os.path, re
 from email_validator import validate_email
@@ -86,24 +86,15 @@ class Funcionario():
     def cpf(self, cpf):
         if len(cpf) < 11 or len(cpf) > 11:
             raise ValueError('CPF deve conter 11 digitos')
-        
-        elif int(cpf) == False:
-            raise ValueError('CPF inválido')
-        
+  
         else:
             self.__cpf = cpf
             
     @idade.setter
     def idade(self, idade):
-        if len(idade) <= 0:
-            raise ValueError('Idade não indicada')
-        
-        elif int(idade) < 18: 
-            raise ValueError('Idade Insuficiente!')
-        
-        elif int(idade) > 70: 
-            raise ValueError('Idade muito grande!')
-        
+        if not idade or not 18 <= int(idade) <= 70:
+            raise ValueError('Idade inválida!')
+
         else:
             self.__idade = idade     
             
@@ -199,9 +190,7 @@ class Dados(tk.Toplevel): # Classe da tela para alterar os dados do funcionário
         self.input_cpf.grid(column=1, row=4, sticky=tk.W, pady=2) 
         self.input_salario.grid(column=1, row=5, sticky=tk.W, pady=2)
 
-#ipad é o espaçamento interno do frame
-#pad é o espaçamento externo do frame
-                
+         
 class Cadastra_funcionario(tk.Toplevel):
     def __init__(self, controle, lista_funcionarios):
         
@@ -398,40 +387,20 @@ class Controle_funcionario():
         salario = self.cadastro.input_salario.get()
         data_adimissão = date.strftime('%d/%m/%Y' ' - ' '%H:%M')
         
+        attributes = ['identidade', 'nome', 'email', 'cpf', 'salario']
+        
         try:
+
             for funcionario in self.lista_funcionarios:
-                if identidade in funcionario.identidade and len(identidade) > 1:
-                    raise ValueError(f'A identidade {identidade} já consta no registro')
-                
-                elif identidade in funcionario.identidade and len(identidade) == 0:
-                    raise ValueError('O número de identidade não foi indicado')
-                
-                #__________________________________________________#
-                
-                elif nome in funcionario.nome and len(nome) > 1:
-                    raise ValueError('Este nome já consta no registro')
-                
-                elif nome in funcionario.nome and len(nome) == 0:
-                    raise ValueError('O nome não foi indicado')
-                
-                #__________________________________________________#
+                for attr in attributes:
+                    value = getattr(funcionario, attr)
+                    input_value = locals()[attr]
 
-                elif email in funcionario.email and len(email) > 1:
-                    raise ValueError('Este email já consta no registro')
-                
-                elif email in funcionario.email and len(email) == 0:
-                    raise ValueError('O email não foi indicado')
-                
-                #__________________________________________________#
+                    if input_value in value and len(input_value) > 1:
+                        raise ValueError(f'O {attr} {input_value} já consta no registro')
+                    elif input_value in value and len(input_value) == 0:
+                        raise ValueError(f'O {attr} não foi indicado')
 
-                elif cpf in funcionario.cpf and len(cpf) > 1: 
-                    raise ValueError('Este CPF já consta no registro')
-                
-                elif cpf in funcionario.cpf and len(cpf) == 0:
-                    raise ValueError('O CPF não foi indicado')
-                
-                #__________________________________________________#
-                
             else: 
                 self.lista_funcionarios.append(Funcionario(identidade, nome, idade, email, cpf, salario, data_adimissão))
 
@@ -465,16 +434,22 @@ class Controle_funcionario():
     def mostra_funcionario(self, id_funcionario):
         for info in self.lista_funcionarios:
             if id_funcionario == info.identidade:
-                info_funcionarios = f'Funcionário {info.identidade}\n\n'
-                info_funcionarios += f'Nome: {info.nome}\n\n'
-                info_funcionarios += f'Idade: {info.idade}\n\n'
-                info_funcionarios += f'Email: {info.email}\n\n'
-                #faz com que na consulta o cpf apareça com pontos e traços
+                
+                # Formatar o CPF com pontos e traços
                 cpf = info.cpf[:3] + '.' + info.cpf[3:6] + '.' + info.cpf[6:9] + '-' + info.cpf[9:]
-                info_funcionarios += f'CPF: {cpf}\n\n'
-                info_funcionarios += f'Salário: R${info.salario}\n\n'
-                info_funcionarios += f'Data de Adimissão: {info.data_adimissão}'
-        self.mostra_janela('Funcionário', info_funcionarios)
+                
+                # Criar a string de informações do funcionário usando uma lista e o método join
+                info_funcionarios = '\n\n'.join([
+                    f'Funcionário {info.identidade}',
+                    f'Nome: {info.nome}',
+                    f'Idade: {info.idade}',
+                    f'Email: {info.email}',
+                    f'CPF: {cpf}',
+                    f'Salário: R${info.salario}',
+                    f'Data de Adimissão: {info.data_adimissão}'
+                ])
+                
+                self.mostra_janela('Funcionário', info_funcionarios)
 
 
     #Método que recebe o evento de duplo click e pega o id do funcionário
