@@ -1,5 +1,5 @@
 # Aplicativo de Gerenciamento de Funcionários :office_worker: :computer:
-Este é um aplicativo desenvolvido em Python com o objetivo de gerenciar funcionários. Ele permite cadastrar funcionários, consultar seus dados, alterar seus salários e deletá-los, se necessário. :memo: :mag_right: :wastebasket:
+Este é um aplicativo desenvolvido em Python com o objetivo de gerenciar funcionários. Ele permite cadastrar funcionários, consultar seus dados, alterar seus dados e deletá-los, se necessário. :memo: :mag_right: :wastebasket:
 
 # Sobre o Projeto :open_book:
 Este aplicativo foi desenvolvido utilizando a biblioteca Tkinter e segue o padrão de projeto MVC (Model-View-Controller). Embora seja um projeto pessoal, a ideia original veio de um projeto da faculdade na matéria de Programação Orientada a Objetos (POO). :mortar_board: :bulb:
