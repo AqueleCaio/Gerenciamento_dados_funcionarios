@@ -10,7 +10,23 @@ Consultar Dados dos Funcionários: Permite visualizar os dados dos funcionários
 Deletar Funcionários: Permite remover funcionários do sistema, se necessário.
 
 # Como Usar :question:
-Para usar este aplicativo, você precisa ter Python e Tkinter instalados em seu sistema. Depois de instalados, você pode clonar este repositório e executar o arquivo principal do aplicativo.
+Para usar este aplicativo, você precisa ter Python e Tkinter instalados em seu sistema. Depois de instalados, você pode clonar este repositório e executar o arquivo principal do aplicativo (main.py).
+
+# Como Instalar Python e Tkinter :snake:
+
+Windows :computer:
+
+__1. Instalar Python:__
+Vá para o site oficial do Python (https://www.python.org/downloads/) e baixe o instalador para a versão mais recente do Python. Execute o instalador e certifique-se de marcar a opção “Add Python to PATH” antes de clicar em “Install Now”.
+
+__2. Instalar Tkinter:__ 
+Tkinter vem pré-instalado com Python, então você não precisa instalá-lo separadamente.
+
+Linux :penguin:
+
+__1.  Instalar Python:__ A maioria das distribuições Linux já vem com Python pré-instalado. Você pode verificar a versão do Python instalada digitando python --version ou python3 --version no terminal. Se você não tem Python instalado ou quer atualizá-lo, use o gerenciador de pacotes da sua distribuição. Por exemplo, no Ubuntu, você pode usar sudo apt-get install python3.
+   
+__2. Instalar Tkinter:__ No Ubuntu, você pode instalar Tkinter com o comando sudo apt-get install python3-tk.
 
 # Contribuições :handshake:
 Contribuições são sempre bem-vindas! Sinta-se à vontade para abrir uma issue ou enviar um pull request.
