@@ -307,22 +307,27 @@ class Cadastra_funcionario(tk.Toplevel):
 
 class Controle_funcionario():
     def __init__(self):
-        
-        if not os.path.isfile('funcionarios.pickle'):
-            self.lista_funcionarios = []
-
-        else:
-            with open ('funcionarios.pickle', 'rb') as file:
-                self.lista_funcionarios = pickle.load(file)  
+        try:
+            if not os.path.isfile('funcionarios.pickle'):
+                self.lista_funcionarios = []
+            else:
+                with open ('funcionarios.pickle', 'rb') as file:
+                    self.lista_funcionarios = pickle.load(file)
+        except PermissionError:
+            print("Erro de permissão ao tentar abrir o arquivo 'funcionarios.pickle'. Por favor, verifique as permissões do arquivo.")
                 
     def insere_funcionario(self):
         lista_dados_funcionario = self.get_id_funcionarios()
         self.cadastro = Cadastra_funcionario(self, lista_dados_funcionario)
-                
+        
     def salva_dados_funcionarios(self):
-        if len(self.lista_funcionarios) != 0:
-            with open ('funcionarios.pickle', 'wb') as file:
-                pickle.dump(self.lista_funcionarios, file)
+        try:
+            if len(self.lista_funcionarios) != 0:
+                with open ('funcionarios.pickle', 'wb') as file:
+                    pickle.dump(self.lista_funcionarios, file)
+        except PermissionError:
+            print("Erro de permissão ao tentar salvar no arquivo 'funcionarios.pickle'. Por favor, verifique as permissões do arquivo.")
+
       
                                          
     def deleta_funcionario(self):
