@@ -401,40 +401,21 @@ class Controle_funcionario():
         salario = self.cadastro.input_salario.get()
         data_adimissão = date.strftime('%d/%m/%Y' ' - ' '%H:%M')
         
+        
+        attributes = ['identidade', 'nome', 'email', 'cpf', 'salario']
+        
         try:
+
             for funcionario in self.lista_funcionarios:
-                if identidade in funcionario.identidade and len(identidade) > 1:
-                    raise ValueError(f'A identidade {identidade} já consta no registro')
-                
-                elif identidade in funcionario.identidade and len(identidade) == 0:
-                    raise ValueError('O número de identidade não foi indicado')
-                
-                #__________________________________________________#
-                
-                elif nome in funcionario.nome and len(nome) > 1:
-                    raise ValueError('Este nome já consta no registro')
-                
-                elif nome in funcionario.nome and len(nome) == 0:
-                    raise ValueError('O nome não foi indicado')
-                
-                #__________________________________________________#
+                for attr in attributes:
+                    value = getattr(funcionario, attr)
+                    input_value = locals()[attr]
 
-                elif email in funcionario.email and len(email) > 1:
-                    raise ValueError('Este email já consta no registro')
-                
-                elif email in funcionario.email and len(email) == 0:
-                    raise ValueError('O email não foi indicado')
-                
-                #__________________________________________________#
+                    if input_value in value and len(input_value) > 1:
+                        raise ValueError(f'O {attr} {input_value} já consta no registro')
+                    elif input_value in value and len(input_value) == 0:
+                        raise ValueError(f'O {attr} não foi indicado')
 
-                elif cpf in funcionario.cpf and len(cpf) > 1: 
-                    raise ValueError('Este CPF já consta no registro')
-                
-                elif cpf in funcionario.cpf and len(cpf) == 0:
-                    raise ValueError('O CPF não foi indicado')
-                
-                #__________________________________________________#
-                
             else: 
                 self.lista_funcionarios.append(Funcionario(identidade, nome, idade, email, cpf, salario, data_adimissão))
 
@@ -452,6 +433,7 @@ class Controle_funcionario():
                 
         except ValueError as erro:
             self.mostra_janela('Erro', erro)
+              
             
     #Método que pega o id do funcionário para inserir na listbox
     def get_id_funcionarios(self):
