@@ -1,6 +1,6 @@
 import tkinter as tk
 import funcionario as funcionario
-import cargos as cargos
+import cargo as cargo
 
 class View_principal():
     def __init__(self, controle, root):
@@ -22,7 +22,7 @@ class Controle_principal():
         self.root = tk.Tk()
         
         self.controle_funcionario = funcionario.Controle_funcionario()
-        self.controle_cargos = cargos.Controle_cargos()
+        self.controle_cargos = cargo.Controle_cargos()
         
         self.root.title('§')
         self.root.geometry('300x250')

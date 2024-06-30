@@ -4,6 +4,13 @@ from datetime import datetime
 import pickle, os.path, re
 from email_validator import validate_email
 
+'''
+Substituir entrada de idade por data de nascimento
+e calcular a idade a partir da data de nascimento
+
+Substituir entrada de salário por um combobox com as opções de cargos disponíveis
+'''
+
 date = datetime.now()
 data = date.strftime('%d/%m/%Y\n %H:%M')
 
