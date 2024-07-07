@@ -106,16 +106,15 @@ class View_cargos(tk.Toplevel):
 class Controle_cargos:
     def __init__(self):
         
-        self.lista_cargos = []
-        
-        if os.path.isfile('cargos.pickle'):
+        if not os.path.isfile('cargos.pickle'):
+            self.lista_cargos = []
+        else:
             with open('cargos.pickle', 'rb') as file:
                 self.lista_cargos = pickle.load(file)
-
+                
     def salva_dados_cargo(self):
-        if len(self.lista_cargos) != 0:
-            with open('cargos.pickle', 'wb') as file:
-                pickle.dump(self.lista_cargos, file)
+        with open('cargos.pickle', 'wb') as file:
+            pickle.dump(self.lista_cargos, file)
         
         
     #abre a tela para inserir os cargos
@@ -152,17 +151,20 @@ class Controle_cargos:
         return self.lista_cargo
     
     def deleta_cargo(self):
-        self.cargo_sel = self.cargo.listbox.get(tk.ACTIVE)
+        cargo_sel = self.cargo.listbox.get(tk.ACTIVE)
 
-        if self.cargo_sel:  # Verifica se algum cargo está selecionado
-            resposta = messagebox.askyesno("Confirmar Exclusão", f"Você realmente deseja deletar o cargo '{self.cargo_sel}'?")
-            
+        if cargo_sel:  # Verifica se algum cargo está selecionado
+            resposta = messagebox.askyesno("Confirmar Exclusão", f"Você realmente deseja deletar o cargo '{cargo_sel}'?")
+
             if resposta:
                 for cargo in self.lista_cargos:
-                    if cargo.nome == self.cargo_sel:  # Verifica se o nome do cargo corresponde ao selecionado
+                    if cargo.nome == cargo_sel:  # Verifica se o nome do cargo corresponde ao selecionado
                         self.lista_cargos.remove(cargo)
+                        
                         self.salva_dados_cargo()
+                        
                         messagebox.showinfo('Sucesso', 'Cargo deletado com sucesso!')
+                        
                         self.cargo.listbox.delete(tk.ACTIVE)
                         break
 

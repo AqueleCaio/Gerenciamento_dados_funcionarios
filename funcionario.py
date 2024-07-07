@@ -5,9 +5,6 @@ import pickle, os.path, re
 from email_validator import validate_email
 
 '''
-Substituir entrada de idade por data de nascimento
-e calcular a idade a partir da data de nascimento
-
 Substituir entrada de salário por um combobox com as opções de cargos disponíveis
 '''
 
@@ -15,13 +12,12 @@ date = datetime.now()
 data = date.strftime('%d/%m/%Y\n %H:%M')
 
 class Funcionario():
-    def __init__(self, identidade, nome, idade, email, cpf, salario, data_adimissão):
+    def __init__(self, identidade, nome, dataNasc, email, cpf, data_adimissão):
         self.identidade = identidade
         self.nome = nome
-        self.idade = idade
+        self.dataNasc = dataNasc
         self.email = email
         self.cpf = cpf 
-        self.salario = salario
         self.__data_adimissão = data_adimissão
         
     @property
@@ -33,8 +29,8 @@ class Funcionario():
         return self.__nome
     
     @property
-    def idade(self):
-        return self.__idade
+    def dataNasc(self):
+        return self.__dataNasc
     
     @property
     def email(self):
@@ -43,10 +39,6 @@ class Funcionario():
     @property
     def cpf(self):
         return self.__cpf
-    
-    @property
-    def salario(self):
-        return self.__salario
     
     @property
     def data_adimissão(self):
@@ -76,6 +68,20 @@ class Funcionario():
   
         else:
             self.__nome = nome
+            
+            
+    @dataNasc.setter
+    def dataNasc(self, dataNasc):
+        # Verifica se a data está no formato dd/mm/aaaa
+        if not isinstance(dataNasc, str):
+            raise TypeError('Data de nascimento deve ser uma string no formato: dd/mm/aaaa')
+        
+        if re.match(r'\d{2}/\d{2}/\d{4}', dataNasc) is None:
+            raise ValueError('Data de nascimento deve ter o formato: dd/mm/aaaa')
+        
+        else:
+            self.__dataNasc = dataNasc
+         
                 
     @email.setter
     def email(self, email):
@@ -89,6 +95,7 @@ class Funcionario():
         else:
             self.__email = email
             
+            
     @cpf.setter
     def cpf(self, cpf):
         if len(cpf) < 11 or len(cpf) > 11:
@@ -96,37 +103,22 @@ class Funcionario():
   
         else:
             self.__cpf = cpf
-            
-    @idade.setter
-    def idade(self, idade):
-        if not idade or not 18 <= int(idade) <= 70:
-            raise ValueError('Idade inválida!')
-
-        else:
-            self.__idade = idade     
-            
-    @salario.setter
-    def salario(self, salario):
-        if int(salario) < 500:
-            raise ValueError('Salário inválido') 
-        
-        else:
-            self.__salario = salario
+             
 
 
 class Dados(tk.Toplevel): # Classe da tela para alterar os dados do funcionário
-    def __init__(self, controle, identidade, nome, idade, email, cpf, salario):
+    def __init__(self, controle, identidade, nome, dataNasc, email, cpf):
         
         tk.Toplevel.__init__(self)
         self.controle = controle
         
         self.title('Alterar salário')
-        self.geometry('350x400')
+        self.geometry('400x400')
         self.configure(bg='light blue')
         self.resizable(False, False)        
         
         self.frame_forms_alterar = tk.Frame(self, bg='light blue', borderwidth=1, relief='solid')
-        self.frame_forms_alterar.pack(padx=50, pady=50, ipadx=10, ipady=10)
+        self.frame_forms_alterar.pack(padx=50, pady=50, ipadx=10, ipady=17)
 
         self.frame_cabeçalho = tk.Frame(self.frame_forms_alterar, bg='light blue')
         self.frame_borda = tk.Frame(self.frame_forms_alterar, bg='light blue')
@@ -138,19 +130,17 @@ class Dados(tk.Toplevel): # Classe da tela para alterar os dados do funcionário
         self.titulo = tk.Label(self.frame_cabeçalho, text=f'Atuais dados de {nome}', bg='light blue', foreground='#000')
         self.id = tk.Label(self.frame_borda, text='Nº ID:', bg='light blue', foreground='#000')
         self.nome = tk.Label(self.frame_borda, text='Nome:', bg='light blue', foreground='#000')
-        self.idade = tk.Label(self.frame_borda, text='Idade:', bg='light blue', foreground='#000')
+        self.dataNasc = tk.Label(self.frame_borda, text='Data Nasc.:', bg='light blue', foreground='#000')
         self.email = tk.Label(self.frame_borda, text='Email:', bg='light blue', foreground='#000')
         self.cpf = tk.Label(self.frame_borda, text='CPF:', bg='light blue', foreground='#000')
-        self.salario = tk.Label(self.frame_borda, text='Salário: ', bg='light blue', foreground='#000')
         
         
         ##__________________________Entries__________________________________##
         self.input_id = tk.Entry(self.frame_borda, width=10)
-        self.input_nome =tk.Entry(self.frame_borda, width=30)
-        self.input_idade = tk.Entry(self.frame_borda, width=10)
+        self.input_nome = tk.Entry(self.frame_borda, width=30)
+        self.input_dataNasc = tk.Entry(self.frame_borda, width=15)
         self.input_email = tk.Entry(self.frame_borda, width=30)
         self.input_cpf = tk.Entry(self.frame_borda, width=30)
-        self.input_salario = tk.Entry(self.frame_borda, width=10)
         
         ##_________________________Inserts__________________________________##
         '''
@@ -159,10 +149,9 @@ class Dados(tk.Toplevel): # Classe da tela para alterar os dados do funcionário
         '''
         self.input_id.insert(0, identidade)
         self.input_nome.insert(0, nome)
-        self.input_idade.insert(0, idade)
+        self.input_dataNasc.insert(0, dataNasc)
         self.input_email.insert(0, email)
         self.input_cpf.insert(0, cpf)
-        self.input_salario.insert(0, salario)
         
         
         ##__________________________Botões__________________________________##
@@ -181,10 +170,9 @@ class Dados(tk.Toplevel): # Classe da tela para alterar os dados do funcionário
         
         self.id.grid(column=0, row=0, sticky=tk.W, pady=5)
         self.nome.grid(column=0, row=1, sticky=tk.W, pady=5)
-        self.idade.grid(column=0, row=2, sticky=tk.W, pady=5)
+        self.dataNasc.grid(column=0, row=2, sticky=tk.W, pady=5)
         self.email.grid(column=0, row=3, sticky=tk.W, pady=5) 
         self.cpf.grid(column=0, row=4, sticky=tk.W, pady=5) 
-        self.salario.grid(column=0, row=5, sticky=tk.W, pady=5)
         
         ##__________________________Grid dos Buttons__________________________________##
         self.confirmar.grid(column=0, row=6, sticky=tk.W, pady=5, padx=5) 
@@ -192,10 +180,9 @@ class Dados(tk.Toplevel): # Classe da tela para alterar os dados do funcionário
         ##__________________________Grid dos Entries__________________________________##
         self.input_id.grid(column=1, row=0, sticky=tk.W, pady=2) 
         self.input_nome.grid(column=1, row=1, sticky=tk.W, pady=2) 
-        self.input_idade.grid(column=1, row=2, sticky=tk.W, pady=2)  
+        self.input_dataNasc.grid(column=1, row=2, sticky=tk.W, pady=2) 
         self.input_email.grid(column=1, row=3, sticky=tk.W, pady=2) 
         self.input_cpf.grid(column=1, row=4, sticky=tk.W, pady=2) 
-        self.input_salario.grid(column=1, row=5, sticky=tk.W, pady=2)
 
          
 class Cadastra_funcionario(tk.Toplevel):
@@ -217,14 +204,15 @@ class Cadastra_funcionario(tk.Toplevel):
         self.frame_lista = tk.Frame(self, bg='light blue') 
         self.frame_lista.pack(side='right', padx=20, ipadx=10, ipady=10)
                 
-        ##__________________________Frames__________________________________##
+        ##__________________________Frames codiovantes da esquerda__________________________________##
         self.frame_borda = tk.Frame(self.frame_forms, bg='light blue', borderwidth=1, relief='flat')
-        self.frame_botao = tk.Frame(self.frame_forms, bg='light blue')
+        self.frame_botao_esquerda = tk.Frame(self.frame_forms, bg='light blue')
         self.frame_cabeçalho = tk.Frame(self.frame_forms, bg='light blue')
         
+        ##__________________________Frames codiovantes da direita__________________________________##
         self.frame_listbox = tk.Frame(self.frame_lista, bg='light blue')
         self.frame_cabeçalho_list = tk.Frame(self.frame_lista, bg='light blue')
-        self.frame_botao_alterar = tk.Frame(self.frame_lista, bg='light blue')
+        self.frame_botao_direita = tk.Frame(self.frame_lista, bg='light blue')
         
         ##__________________________Labels__________________________________##
         self.data = tk.Label(self.frame_cabeçalho, text=f'{data}', bg='light blue')
@@ -232,10 +220,9 @@ class Cadastra_funcionario(tk.Toplevel):
         self.titulo_list = tk.Label(self.frame_cabeçalho_list, text='Lista de Funcionários', bg='light blue', foreground='#000')
         self.id = tk.Label(self.frame_borda, text='Nº ID:', bg='light blue', foreground='#000')
         self.nome = tk.Label(self.frame_borda, text='Nome:', bg='light blue', foreground='#000')
-        self.idade = tk.Label(self.frame_borda, text='Idade:', bg='light blue', foreground='#000')
+        self.dataNasc = tk.Label(self.frame_borda, text='Data Nasc.:', bg='light blue', foreground='#000')
         self.email = tk.Label(self.frame_borda, text='Email:', bg='light blue', foreground='#000')
         self.cpf = tk.Label(self.frame_borda, text='CPF:', bg='light blue', foreground='#000')
-        self.salario = tk.Label(self.frame_borda, text='Salário: ', bg='light blue', foreground='#000')
         
         
         ##__________________________Configuração de Labels__________________________________##
@@ -243,18 +230,17 @@ class Cadastra_funcionario(tk.Toplevel):
         self.titulo_list.config(font=('Arial', 13, 'bold'))
         
         ##__________________________Buttons__________________________________##
-        self.cadastrar = tk.Button(self.frame_botao, text='Cadastrar', command=controle.enter_handler)
-        self.deleta = tk.Button(self.frame_botao, text='Deletar', command=controle.deleta_funcionario)
+        self.cadastrar = tk.Button(self.frame_botao_esquerda, text='Cadastrar', command=controle.enter_handler)
         
-        self.botao_alterar = tk.Button(self.frame_listbox, text='Alterar Dados', command=controle.gerir_dados)
+        self.deleta = tk.Button(self.frame_botao_direita, text='Deletar', command=controle.deleta_funcionario)
+        self.botao_alterar = tk.Button(self.frame_botao_direita, text='Alterar Dados', command=controle.gerir_dados)
         
         ##__________________________Entries__________________________________##
         self.input_id = tk.Entry(self.frame_borda, width=10)
-        self.input_nome =tk.Entry(self.frame_borda, width=30)
-        self.input_idade = tk.Entry(self.frame_borda, width=10)
+        self.input_nome = tk.Entry(self.frame_borda, width=30)
+        self.input_dataNasc = tk.Entry(self.frame_borda, width=15)
         self.input_email = tk.Entry(self.frame_borda, width=30)
         self.input_cpf = tk.Entry(self.frame_borda, width=30)
-        self.input_salario = tk.Entry(self.frame_borda, width=10)
         
         ##__________________________Listbox__________________________________##
         self.listbox = tk.Listbox(self.frame_listbox, width=27, height=16)
@@ -270,8 +256,8 @@ class Cadastra_funcionario(tk.Toplevel):
         self.listbox.pack()
          
         ##__________________________Packs dos Frames__________________________________##
-        self.frame_botao_alterar.pack(side='bottom', pady=5) #Botão de alterar do frame_lista (lado direito)
-        self.frame_botao.pack(side='bottom', pady=5) #Botões de cadastrar e deletar do frame_forms (lado esquerdo)
+        self.frame_botao_direita.pack(side='bottom', pady=5) #Botão de alterar do frame_lista (lado direito)
+        self.frame_botao_esquerda.pack(side='bottom', pady=5) #Botões de cadastrar e deletar do frame_forms (lado esquerdo)
         self.frame_cabeçalho.pack(side='top', pady=5)
         self.frame_borda.pack(anchor=tk.CENTER)
         self.frame_listbox.pack(side='bottom', padx=50)
@@ -283,24 +269,22 @@ class Cadastra_funcionario(tk.Toplevel):
         
         self.id.grid(column=0, row=0, sticky=tk.W, pady=5)
         self.nome.grid(column=0, row=1, sticky=tk.W, pady=5)
-        self.idade.grid(column=0, row=2, sticky=tk.W, pady=5)
+        self.dataNasc.grid(column=0, row=2, sticky=tk.W, pady=5)
         self.email.grid(column=0, row=3, sticky=tk.W, pady=5) 
         self.cpf.grid(column=0, row=4, sticky=tk.W, pady=5) 
-        self.salario.grid(column=0, row=5, sticky=tk.W, pady=5)
         
         ##__________________________Grid dos Buttons__________________________________##
-        self.cadastrar.grid(column=0, row=6, sticky=tk.W, pady=2, padx=5) 
-        self.deleta.grid(column=1, row=6, sticky=tk.W, pady=2, padx=5)
+        self.cadastrar.grid(column=0, row=6, sticky=tk.W, pady=5, ipadx=5) 
         
-        self.botao_alterar.pack(side='bottom', pady=10)
+        self.deleta.pack(side='right', pady=10, padx=10)
+        self.botao_alterar.pack(side='left', pady=10, padx=10)
         
         ##__________________________Grid dos Entries__________________________________##
         self.input_id.grid(column=1, row=0, sticky=tk.W, pady=2) 
         self.input_nome.grid(column=1, row=1, sticky=tk.W, pady=2) 
-        self.input_idade.grid(column=1, row=2, sticky=tk.W, pady=2)  
+        self.input_dataNasc.grid(column=1, row=2, sticky=tk.W, pady=2) 
         self.input_email.grid(column=1, row=3, sticky=tk.W, pady=2) 
         self.input_cpf.grid(column=1, row=4, sticky=tk.W, pady=2) 
-        self.input_salario.grid(column=1, row=5, sticky=tk.W, pady=2)
 
 
 class Controle_funcionario():
@@ -313,9 +297,6 @@ class Controle_funcionario():
             with open ('funcionarios.pickle', 'rb') as file:
                 self.lista_funcionarios = pickle.load(file)  
                 
-    def insere_funcionario(self):
-        lista_dados_funcionario = self.get_id_funcionarios()
-        self.cadastro = Cadastra_funcionario(self, lista_dados_funcionario)
                 
     def salva_dados_funcionarios(self):
         if len(self.lista_funcionarios) != 0:
@@ -323,19 +304,30 @@ class Controle_funcionario():
                 pickle.dump(self.lista_funcionarios, file)
       
                                          
+    def insere_funcionario(self):
+        lista_dados_funcionario = self.get_id_funcionarios()
+        self.cadastro = Cadastra_funcionario(self, lista_dados_funcionario)
+        
+        
     def deleta_funcionario(self):
         identidade = self.cadastro.listbox.get(tk.ACTIVE)
         
-        for funcionario in self.lista_funcionarios:
-            if identidade[1] == funcionario.identidade:
-                self.lista_funcionarios.remove(funcionario)
-                
-                self.salva_dados_funcionarios()
-                
-                self.mostra_janela('Sucesso', 'Funcionário deletado com sucesso')
-                
-                #faz o funcionário sair da lista de funcionários
-                self.cadastro.listbox.delete(tk.ACTIVE)
+        if identidade:  # Verifica se um funcionário está selecionado
+            resposta = messagebox.askyesno("Confirmar Exclusão", "Você realmente deseja deletar este funcionário?")
+            
+            if resposta:  # resposta já é um booleano
+                for funcionario in self.lista_funcionarios:
+                    if identidade[1] == funcionario.identidade:
+                        
+                        self.lista_funcionarios.remove(funcionario)
+                        
+                        self.salva_dados_funcionarios()
+                        
+                        self.mostra_janela('Sucesso', 'Funcionário deletado com sucesso')
+                        
+                        self.cadastro.listbox.delete(tk.ACTIVE)
+                        break  # Adicione um break para parar o loop após deletar o funcionário
+        
      
         
     def gerir_dados(self): #Abre a tela para gerenciar os dados do funcionário
@@ -345,21 +337,19 @@ class Controle_funcionario():
             if identidade[1] == funcionario.identidade:
                 identidade = funcionario.identidade
                 nome = funcionario.nome
-                idade = funcionario.idade
+                dataNasc = funcionario.dataNasc
                 email = funcionario.email
                 cpf = funcionario.cpf
-                salario = funcionario.salario
         
-        self.tela_dados = Dados(self, identidade, nome, idade, email, cpf, salario) #passa nome, identidade e salario para a classe tela_dados
+        self.tela_dados = Dados(self, identidade, nome, dataNasc, email, cpf) #passa nome, identidade e  para a classe tela_dados
         
         
     def definir_dados(self): #confirmação da alteração dos dados
         identidade = self.tela_dados.input_id.get()
         nome = self.tela_dados.input_nome.get()
-        idade = self.tela_dados.input_idade.get()
+        dataNasc = self.tela_dados.input_dataNasc.get()
         email = self.tela_dados.input_email.get()
         cpf = self.tela_dados.input_cpf.get()
-        salario = self.tela_dados.input_salario.get()
             
         resposta = messagebox.askyesno('Confirmação', 'Deseja realmente alterar os dados?')    
         try:
@@ -368,10 +358,9 @@ class Controle_funcionario():
                     if identidade == funcionario.identidade:
                         funcionario.identidade = identidade
                         funcionario.nome = nome
-                        funcionario.idade = idade
+                        funcionario.dataNasc = dataNasc
                         funcionario.email = email
                         funcionario.cpf = cpf
-                        funcionario.salario = salario
                 
                         self.salva_dados_funcionarios() #Salva as novas alterações feitas no salário do funcionário
                         
@@ -388,15 +377,22 @@ class Controle_funcionario():
     def enter_handler(self):
         identidade = self.cadastro.input_id.get()
         nome = self.cadastro.input_nome.get()
-        idade = self.cadastro.input_idade.get()
+        dataNasc = self.cadastro.input_dataNasc.get()
         email = self.cadastro.input_email.get()
         cpf = self.cadastro.input_cpf.get()
-        salario = self.cadastro.input_salario.get()
         data_adimissão = date.strftime('%d/%m/%Y' ' - ' '%H:%M')
         
-        attributes = ['identidade', 'nome', 'email', 'cpf', 'salario']
+        attributes = ['identidade', 'nome', 'email', 'cpf']
         
         try:
+            self.dataNasc = dataNasc
+
+            # Calcula a idade e verifica se é maior de 18 anos e menor que 70
+            dataNasc_dt = datetime.strptime(self.dataNasc, '%d/%m/%Y')
+            today = datetime.today()
+            idade = today.year - dataNasc_dt.year - ((today.month, today.day) < (dataNasc_dt.month, dataNasc_dt.day))
+            if idade < 18 or idade > 70:
+                raise ValueError('Idade inválida')
 
             for funcionario in self.lista_funcionarios:
                 for attr in attributes:
@@ -409,7 +405,7 @@ class Controle_funcionario():
                         raise ValueError(f'O {attr} não foi indicado')
 
             else: 
-                self.lista_funcionarios.append(Funcionario(identidade, nome, idade, email, cpf, salario, data_adimissão))
+                self.lista_funcionarios.append(Funcionario(identidade, nome, dataNasc, email, cpf, data_adimissão))
 
                 identidade = 'Nº:', identidade
 
@@ -442,6 +438,10 @@ class Controle_funcionario():
         for info in self.lista_funcionarios:
             if id_funcionario == info.identidade:
                 
+                #Calcula a idade do funcionário a partir da data de nascimento
+                idade = datetime.strptime(info.dataNasc, '%d/%m/%Y')
+                idade = date.year - idade.year - ((date.month, date.day) < (idade.month, idade.day))
+                
                 # Formatar o CPF com pontos e traços
                 cpf = info.cpf[:3] + '.' + info.cpf[3:6] + '.' + info.cpf[6:9] + '-' + info.cpf[9:]
                 
@@ -449,10 +449,9 @@ class Controle_funcionario():
                 info_funcionarios = '\n\n'.join([
                     f'Funcionário {info.identidade}',
                     f'Nome: {info.nome}',
-                    f'Idade: {info.idade}',
+                    f'Idade: {idade}',
                     f'Email: {info.email}',
                     f'CPF: {cpf}',
-                    f'Salário: R${info.salario}',
                     f'Data de Adimissão: {info.data_adimissão}'
                 ])
                 
@@ -472,8 +471,7 @@ class Controle_funcionario():
     def limpa_texto(self):
         self.cadastro.input_id.delete(0, tk.END)
         self.cadastro.input_nome.delete(0, tk.END)
-        self.cadastro.input_idade.delete(0, tk.END)
+        self.cadastro.input_dataNasc.delete(0, tk.END)
         self.cadastro.input_email.delete(0, tk.END)
         self.cadastro.input_cpf.delete(0, tk.END)  
-        self.cadastro.input_salario.delete(0, tk.END)
         
