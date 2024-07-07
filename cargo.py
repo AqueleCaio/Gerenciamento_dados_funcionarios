@@ -74,6 +74,8 @@ class View_cargos(tk.Toplevel):
         self.input_descricao = tk.Text(self.frame_inputs, width=30, height=5)
 
         self.listbox = tk.Listbox(self.frame_right, width=27, height=14)
+        
+        self.listbox.bind('<Double-1>', lambda event: controle.on_listbox_select(event, self.listbox))#Passar um metodo double click
 
         for listbox in lista_cargo:
             self.listbox.insert(tk.END, listbox)
@@ -129,26 +131,27 @@ class Controle_cargos:
         descricao = self.cargo.input_descricao.get('1.0', tk.END)
         
         try:
-            self.lista_cargos.append(Cargos(nome, salario, descricao))
             
-            listbox = self.cargo.listbox
-            listbox.insert(tk.END, nome)
+            if int(salario) < 700:
+                raise ValueError('Salário deve ser maior que 800')
             
-            messagebox.showinfo('Sucesso', 'Cargo Inserido com Sucesso!')
-            
-            self.salva_dados_cargo()
-            
-            self.clean_text()
+            else: 
+                self.lista_cargos.append(Cargos(nome, salario, descricao))
+                
+                listbox = self.cargo.listbox
+                listbox.insert(tk.END, nome)
+                
+                messagebox.showinfo('Sucesso', 'Cargo Inserido com Sucesso!')
+                
+                self.salva_dados_cargo()
+                
+                self.clean_text()
             
         except ValueError as erro:
             messagebox.showerror('Erro', erro)
             
     def get_nome(self):
-        self.lista_cargo = []
-        for cargo in self.lista_cargos:
-            self.lista_cargo.append(cargo.nome)
-            
-        return self.lista_cargo
+        return [cargo.nome for cargo in self.lista_cargos]
     
     def deleta_cargo(self):
         cargo_sel = self.cargo.listbox.get(tk.ACTIVE)
@@ -167,6 +170,25 @@ class Controle_cargos:
                         
                         self.cargo.listbox.delete(tk.ACTIVE)
                         break
+                    
+    def mostra_funcionario(self, cargo_sel):
+        for cargos in self.lista_cargos:
+            if cargo_sel == cargos.nome:
+                
+                # Criar a string de informações do cargo usando uma lista e o método join
+                info_cargo = '\n\n'.join([
+                    f'Cargo: {cargos.nome}',
+                    f'Salário: R${cargos.salario}',
+                    f'Descrição: {cargos.descricao}'
+                ])
+                
+                messagebox.showinfo('Visualizar Cargo', info_cargo)
+
+
+    #Método que recebe o evento de duplo click e pega o id do funcionário
+    def on_listbox_select(self, event, listbox):
+        cargo_sel = listbox.get(tk.ACTIVE)
+        self.mostra_funcionario(cargo_sel)
 
     
     def clean_text(self):

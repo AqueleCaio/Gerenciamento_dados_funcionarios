@@ -1,8 +1,9 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 from datetime import datetime
 import pickle, os.path, re
 from email_validator import validate_email
+import cargo as cargo
 
 '''
 Substituir entrada de salário por um combobox com as opções de cargos disponíveis
@@ -12,12 +13,13 @@ date = datetime.now()
 data = date.strftime('%d/%m/%Y\n %H:%M')
 
 class Funcionario():
-    def __init__(self, identidade, nome, dataNasc, email, cpf, data_adimissão):
+    def __init__(self, identidade, nome, dataNasc, email, cpf, cargo, data_adimissão):
         self.identidade = identidade
         self.nome = nome
         self.dataNasc = dataNasc
         self.email = email
         self.cpf = cpf 
+        self.cargo = cargo
         self.__data_adimissão = data_adimissão
         
     @property
@@ -39,6 +41,10 @@ class Funcionario():
     @property
     def cpf(self):
         return self.__cpf
+    
+    @property
+    def cargo(self):
+        return self.__cargo
     
     @property
     def data_adimissão(self):
@@ -103,11 +109,20 @@ class Funcionario():
   
         else:
             self.__cpf = cpf
+            
+    @cargo.setter
+    def cargo(self, cargo):
+        #se tiver vazio retorna erro
+        if cargo == '':
+            raise ValueError('Cargo não informado')
+        
+        else:
+            self.__cargo = cargo
+        
              
 
-
 class Dados(tk.Toplevel): # Classe da tela para alterar os dados do funcionário
-    def __init__(self, controle, identidade, nome, dataNasc, email, cpf):
+    def __init__(self, controle, identidade, nome, dataNasc, email, cpf, lista_cargos):
         
         tk.Toplevel.__init__(self)
         self.controle = controle
@@ -133,6 +148,10 @@ class Dados(tk.Toplevel): # Classe da tela para alterar os dados do funcionário
         self.dataNasc = tk.Label(self.frame_borda, text='Data Nasc.:', bg='light blue', foreground='#000')
         self.email = tk.Label(self.frame_borda, text='Email:', bg='light blue', foreground='#000')
         self.cpf = tk.Label(self.frame_borda, text='CPF:', bg='light blue', foreground='#000')
+        self.cargo = tk.Label(self.frame_borda, text='Cargo:', bg='light blue', foreground='#000') 
+        
+        ##__________________________Combobox__________________________________##
+        self.comboboxCargo = ttk.Combobox(self.frame_borda, values=lista_cargos, width=20, state="readonly")
         
         
         ##__________________________Entries__________________________________##
@@ -141,6 +160,7 @@ class Dados(tk.Toplevel): # Classe da tela para alterar os dados do funcionário
         self.input_dataNasc = tk.Entry(self.frame_borda, width=15)
         self.input_email = tk.Entry(self.frame_borda, width=30)
         self.input_cpf = tk.Entry(self.frame_borda, width=30)
+        
         
         ##_________________________Inserts__________________________________##
         '''
@@ -173,6 +193,8 @@ class Dados(tk.Toplevel): # Classe da tela para alterar os dados do funcionário
         self.dataNasc.grid(column=0, row=2, sticky=tk.W, pady=5)
         self.email.grid(column=0, row=3, sticky=tk.W, pady=5) 
         self.cpf.grid(column=0, row=4, sticky=tk.W, pady=5) 
+        self.cargo.grid(column=0, row=5, sticky=tk.W, pady=5)
+        
         
         ##__________________________Grid dos Buttons__________________________________##
         self.confirmar.grid(column=0, row=6, sticky=tk.W, pady=5, padx=5) 
@@ -183,10 +205,13 @@ class Dados(tk.Toplevel): # Classe da tela para alterar os dados do funcionário
         self.input_dataNasc.grid(column=1, row=2, sticky=tk.W, pady=2) 
         self.input_email.grid(column=1, row=3, sticky=tk.W, pady=2) 
         self.input_cpf.grid(column=1, row=4, sticky=tk.W, pady=2) 
+        
+        ##__________________________Grid dos Combobox__________________________________##
+        self.comboboxCargo.grid(column=1, row=5, sticky=tk.W, pady=5)
 
          
 class Cadastra_funcionario(tk.Toplevel):
-    def __init__(self, controle, lista_funcionarios):
+    def __init__(self, controle, lista_funcionarios, lista_cargos): # passar a lista de cargos pelo controle
         
         tk.Toplevel.__init__(self)
         self.controle = controle
@@ -223,6 +248,10 @@ class Cadastra_funcionario(tk.Toplevel):
         self.dataNasc = tk.Label(self.frame_borda, text='Data Nasc.:', bg='light blue', foreground='#000')
         self.email = tk.Label(self.frame_borda, text='Email:', bg='light blue', foreground='#000')
         self.cpf = tk.Label(self.frame_borda, text='CPF:', bg='light blue', foreground='#000')
+        self.cargo = tk.Label(self.frame_borda, text='Cargo:', bg='light blue', foreground='#000') 
+        
+        ##__________________________Combobox__________________________________##
+        self.comboboxCargo = ttk.Combobox(self.frame_borda, values=lista_cargos, width=20, state="readonly")
         
         
         ##__________________________Configuração de Labels__________________________________##
@@ -272,12 +301,14 @@ class Cadastra_funcionario(tk.Toplevel):
         self.dataNasc.grid(column=0, row=2, sticky=tk.W, pady=5)
         self.email.grid(column=0, row=3, sticky=tk.W, pady=5) 
         self.cpf.grid(column=0, row=4, sticky=tk.W, pady=5) 
+        self.cargo.grid(column=0, row=5, sticky=tk.W, pady=5)
         
         ##__________________________Grid dos Buttons__________________________________##
         self.cadastrar.grid(column=0, row=6, sticky=tk.W, pady=5, ipadx=5) 
         
         self.deleta.pack(side='right', pady=10, padx=10)
         self.botao_alterar.pack(side='left', pady=10, padx=10)
+
         
         ##__________________________Grid dos Entries__________________________________##
         self.input_id.grid(column=1, row=0, sticky=tk.W, pady=2) 
@@ -285,6 +316,9 @@ class Cadastra_funcionario(tk.Toplevel):
         self.input_dataNasc.grid(column=1, row=2, sticky=tk.W, pady=2) 
         self.input_email.grid(column=1, row=3, sticky=tk.W, pady=2) 
         self.input_cpf.grid(column=1, row=4, sticky=tk.W, pady=2) 
+        
+        ##__________________________Grid dos Combobox__________________________________##
+        self.comboboxCargo.grid(column=1, row=5, sticky=tk.W, pady=5)
 
 
 class Controle_funcionario():
@@ -302,11 +336,28 @@ class Controle_funcionario():
         if len(self.lista_funcionarios) != 0:
             with open ('funcionarios.pickle', 'wb') as file:
                 pickle.dump(self.lista_funcionarios, file)
+                
+                
+    def get_cargos_from_file(self):
+        if os.path.isfile('cargos.pickle'):
+            with open('cargos.pickle', 'rb') as file:
+                return pickle.load(file)
+        return []
+    
+    
+    def get_nomeCargo(self):
+        self.lista_nomeCargo = []
+        
+        for cargo in self.get_cargos_from_file():
+            self.lista_nomeCargo.append(cargo.nome)
+        
+        return self.lista_nomeCargo
       
                                          
     def insere_funcionario(self):
         lista_dados_funcionario = self.get_id_funcionarios()
-        self.cadastro = Cadastra_funcionario(self, lista_dados_funcionario)
+        lista_nomes_cargos = self.get_nomeCargo()
+        self.cadastro = Cadastra_funcionario(self, lista_dados_funcionario, lista_nomes_cargos)
         
         
     def deleta_funcionario(self):
@@ -327,11 +378,12 @@ class Controle_funcionario():
                         
                         self.cadastro.listbox.delete(tk.ACTIVE)
                         break  # Adicione um break para parar o loop após deletar o funcionário
-        
-     
+                    
         
     def gerir_dados(self): #Abre a tela para gerenciar os dados do funcionário
         identidade = self.cadastro.listbox.get(tk.ACTIVE)
+        lista_nomes_cargos = self.get_nomeCargo()
+        
         
         for funcionario in self.lista_funcionarios:
             if identidade[1] == funcionario.identidade:
@@ -341,7 +393,7 @@ class Controle_funcionario():
                 email = funcionario.email
                 cpf = funcionario.cpf
         
-        self.tela_dados = Dados(self, identidade, nome, dataNasc, email, cpf) #passa nome, identidade e  para a classe tela_dados
+        self.tela_dados = Dados(self, identidade, nome, dataNasc, email, cpf, lista_nomes_cargos) 
         
         
     def definir_dados(self): #confirmação da alteração dos dados
@@ -350,6 +402,7 @@ class Controle_funcionario():
         dataNasc = self.tela_dados.input_dataNasc.get()
         email = self.tela_dados.input_email.get()
         cpf = self.tela_dados.input_cpf.get()
+        cargo = self.tela_dados.comboboxCargo.get()
             
         resposta = messagebox.askyesno('Confirmação', 'Deseja realmente alterar os dados?')    
         try:
@@ -361,6 +414,7 @@ class Controle_funcionario():
                         funcionario.dataNasc = dataNasc
                         funcionario.email = email
                         funcionario.cpf = cpf
+                        funcionario.cargo = cargo
                 
                         self.salva_dados_funcionarios() #Salva as novas alterações feitas no salário do funcionário
                         
@@ -380,6 +434,7 @@ class Controle_funcionario():
         dataNasc = self.cadastro.input_dataNasc.get()
         email = self.cadastro.input_email.get()
         cpf = self.cadastro.input_cpf.get()
+        cargo = self.cadastro.comboboxCargo.get()
         data_adimissão = date.strftime('%d/%m/%Y' ' - ' '%H:%M')
         
         attributes = ['identidade', 'nome', 'email', 'cpf']
@@ -405,7 +460,7 @@ class Controle_funcionario():
                         raise ValueError(f'O {attr} não foi indicado')
 
             else: 
-                self.lista_funcionarios.append(Funcionario(identidade, nome, dataNasc, email, cpf, data_adimissão))
+                self.lista_funcionarios.append(Funcionario(identidade, nome, dataNasc, email, cpf, cargo, data_adimissão))
 
                 identidade = 'Nº:', identidade
 
@@ -452,6 +507,7 @@ class Controle_funcionario():
                     f'Idade: {idade}',
                     f'Email: {info.email}',
                     f'CPF: {cpf}',
+                    f'Cargo: {info.cargo}',
                     f'Data de Adimissão: {info.data_adimissão}'
                 ])
                 
@@ -474,4 +530,5 @@ class Controle_funcionario():
         self.cadastro.input_dataNasc.delete(0, tk.END)
         self.cadastro.input_email.delete(0, tk.END)
         self.cadastro.input_cpf.delete(0, tk.END)  
+        self.cadastro.comboboxCargo.set("") 
         
