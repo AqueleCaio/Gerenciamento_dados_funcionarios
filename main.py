@@ -1,5 +1,6 @@
 import tkinter as tk
 import funcionario as funcionario
+import cargo as cargo
 
 class View_principal():
     def __init__(self, controle, root):
@@ -13,6 +14,7 @@ class View_principal():
         
         self.menubar.add_cascade(label='Opções', menu=self.menu_funcionario)
         self.menu_funcionario.add_command(label='Cadastrar Funcionário', command=controle.insere_funcionario)
+        self.menu_funcionario.add_command(label='Adicionar Cargos', command=controle.insere_cargo)
 
 
 class Controle_principal():
@@ -20,6 +22,7 @@ class Controle_principal():
         self.root = tk.Tk()
         
         self.controle_funcionario = funcionario.Controle_funcionario()
+        self.controle_cargos = cargo.Controle_cargos()
         
         self.root.title('§')
         self.root.geometry('300x250')
@@ -31,6 +34,9 @@ class Controle_principal():
         
     def insere_funcionario(self):
         self.controle_funcionario.insere_funcionario()
+        
+    def insere_cargo(self):
+        self.controle_cargos.insere_cargo()
         
 if __name__ == '__main__':
     exec = Controle_principal()
