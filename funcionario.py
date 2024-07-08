@@ -5,10 +5,6 @@ import pickle, os.path, re
 from email_validator import validate_email
 import cargo as cargo
 
-'''
-Substituir entrada de salário por um combobox com as opções de cargos disponíveis
-'''
-
 date = datetime.now()
 data = date.strftime('%d/%m/%Y\n %H:%M')
 
