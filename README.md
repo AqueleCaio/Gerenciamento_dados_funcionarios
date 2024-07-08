@@ -5,11 +5,12 @@ Este é um aplicativo desenvolvido em Python com o objetivo de gerenciar funcion
 Este aplicativo foi desenvolvido utilizando a biblioteca Tkinter e segue o padrão de projeto MVC (Model-View-Controller). Embora seja um projeto pessoal, a ideia original veio de um projeto da faculdade na matéria de Programação Orientada a Objetos (POO). :mortar_board: :bulb:
 
 # Funcionalidades :gear:
-Cadastrar Funcionários: Permite adicionar novos funcionários ao sistema.
-Consultar Dados dos Funcionários: Permite visualizar os dados dos funcionários cadastrados clicando duas vezez em seu nome na listbox.
-Deletar Funcionários: Permite remover funcionários do sistema, se necessário.
-Adcioanr cargos: Permite adicionar novos cargos para associá-los aos funcionários cadastrados.
-Deletar cargos: Permite deletar os cargos.
+__Cadastrar Funcionários:__ Permite adicionar novos funcionários ao sistema. <br>
+__Consultar Dados dos Funcionários:__ Permite visualizar os dados dos funcionários cadastrados clicando duas vezez em seu nome na listbox.<br>
+__Alterar Dados dos Funcionários:__ Caso necessário, o sistema permite alterar os dados dos funcionários cadastrados.<br>
+__Deletar Funcionários:__ Permite remover funcionários do sistema, se necessário.<br>
+__Adcioanr cargos:__ Permite adicionar novos cargos para associá-los aos funcionários cadastrados.<br>
+__Deletar cargos:__ Permite deletar os cargos.
 
 # Como Usar :question:
 Para usar este aplicativo, você precisa ter Python e Tkinter instalados em seu sistema. Depois de instalados, você pode clonar este repositório e executar o arquivo principal do aplicativo (main.py).
