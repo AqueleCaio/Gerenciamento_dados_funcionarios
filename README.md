@@ -6,8 +6,10 @@ Este aplicativo foi desenvolvido utilizando a biblioteca Tkinter e segue o padr�
 
 # Funcionalidades :gear:
 Cadastrar Funcionários: Permite adicionar novos funcionários ao sistema.
-Consultar Dados dos Funcionários: Permite visualizar os dados dos funcionários cadastrados.
+Consultar Dados dos Funcionários: Permite visualizar os dados dos funcionários cadastrados clicando duas vezez em seu nome na listbox.
 Deletar Funcionários: Permite remover funcionários do sistema, se necessário.
+Adcioanr cargos: Permite adicionar novos cargos para associá-los aos funcionários cadastrados.
+Deletar cargos: Permite deletar os cargos.
 
 # Como Usar :question:
 Para usar este aplicativo, você precisa ter Python e Tkinter instalados em seu sistema. Depois de instalados, você pode clonar este repositório e executar o arquivo principal do aplicativo (main.py).
