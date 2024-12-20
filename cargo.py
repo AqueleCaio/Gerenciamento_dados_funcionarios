@@ -28,10 +28,10 @@ class Cargos:
 
         elif any(char.isdigit() for char in nome):
             raise ValueError('Nome não pode conter números')
-
+        
         else:
             self.__nome = nome
-
+            
     @salario.setter
     def salario(self, salario):
         if salario == '':
@@ -50,12 +50,12 @@ class View_cargos(tk.Toplevel):
         self.controle = controle
                 
         self.title('Cargos')
-        self.geometry('550x400')
+        self.geometry('550x350')
         self.configure(bg='light blue')
         self.resizable(False, False)
 
-        self.frame_left = tk.Frame(self, bg='light blue', borderwidth=1, relief='solid') 
-        self.frame_right = tk.Frame(self, bg='light blue') 
+        self.frame_left = tk.Frame(self, bg='light blue', borderwidth=1, relief='solid') # Frame esquerdo
+        self.frame_right = tk.Frame(self, bg='light blue') # Frame direito
 
         self.titulo_left = tk.Label(self.frame_left, text='Insira um cargo', bg='light blue')
         self.titulo_left.config(font=('Arial', 13, 'bold'))
@@ -73,7 +73,8 @@ class View_cargos(tk.Toplevel):
         self.input_descricao = tk.Text(self.frame_inputs, width=30, height=5)
 
         self.listbox = tk.Listbox(self.frame_right, width=27, height=14)
-        self.listbox.bind('<Double-1>', lambda event: controle.on_listbox_select(event, self.listbox))
+        
+        self.listbox.bind('<Double-1>', lambda event: controle.on_listbox_select(event, self.listbox))#Passar um metodo double click
 
         for listbox in lista_cargo:
             self.listbox.insert(tk.END, listbox)
