@@ -1,3 +1,4 @@
+import requests
 import tkinter as tk
 from tkinter import messagebox
 import pickle, os.path
@@ -7,20 +8,19 @@ class Cargos:
         self.nome = nome
         self.salario = salario
         self.__descricao = descricao
-        
-    
+
     @property
     def nome(self):
         return self.__nome
-    
+
     @property
     def salario(self):
         return self.__salario
-    
+
     @property
     def descricao(self):
         return self.__descricao
-    
+
     @nome.setter
     def nome(self, nome):
         if nome == '':
@@ -36,17 +36,16 @@ class Cargos:
     def salario(self, salario):
         if salario == '':
             raise ValueError('Salário não pode ser vazio')
-        
-        elif str(salario).isdigit() == False:
+
+        elif not str(salario).isdigit():
             raise ValueError('Salário deve ser um número')
-        
+
         else:
             self.__salario = salario
-            
+
 
 class View_cargos(tk.Toplevel): 
     def __init__(self, controle, lista_cargo): 
-        
         tk.Toplevel.__init__(self)
         self.controle = controle
                 
@@ -80,7 +79,12 @@ class View_cargos(tk.Toplevel):
         for listbox in lista_cargo:
             self.listbox.insert(tk.END, listbox)
 
-        self.botao_adiciona = tk.Button(self.frame_left, text='Adicionar', command=controle.enterHandler)
+        # Novo frame para os botões
+        self.frame_botoes = tk.Frame(self.frame_left, bg='light blue')
+
+        self.botao_adiciona = tk.Button(self.frame_botoes, text='Adicionar', command=controle.enterHandler)
+        self.botao_gerar_descricao = tk.Button(self.frame_botoes, text='Gerar Descrição', command=controle.gerar_descricao)
+        
         self.botao_deleta = tk.Button(self.frame_right, text='Deletar', command=controle.deleta_cargo)
 
         # Layout
@@ -96,18 +100,24 @@ class View_cargos(tk.Toplevel):
         
         self.input_nome.grid(row=0, column=1, sticky='w', pady=5)
         self.input_salario.grid(row=1, column=1, sticky='w', pady=5)
-        self.input_descricao.grid(row=2, column=1, sticky='w', pady=5)
+        self.input_descricao.grid(row=2, column=1, sticky='w', pady=1)
 
         self.titulo_right.pack(pady=10)
         self.listbox.pack(padx=5, pady=5)
         
-        self.botao_adiciona.pack(padx=5, pady=5)
+        # Layout dos botões no novo frame
+        self.frame_botoes.pack(pady=7, fill=tk.X)
+        
+        self.botao_adiciona.grid(row=0, column=0, padx=(40, 50))  # Espaçamento à direita do primeiro botão
+        self.botao_gerar_descricao.grid(row=0, column=1, padx=(50, 0))  # Espaçamento à esquerda do segundo botão
+
+
         self.botao_deleta.pack(padx=5, pady=5)
+
 
 
 class Controle_cargos:
     def __init__(self):
-        
         if not os.path.isfile('cargos.pickle'):
             self.lista_cargos = []
         else:
@@ -118,10 +128,7 @@ class Controle_cargos:
         with open('cargos.pickle', 'wb') as file:
             pickle.dump(self.lista_cargos, file)
         
-        
-    #abre a tela para inserir os cargos
     def insere_cargo(self): 
-        #lista_cargo referece ao nome dos cargos que vão ser passados para a listbox posteriormente
         lista_cargo = self.get_nome()
         self.cargo = View_cargos(self, lista_cargo)
         
@@ -131,20 +138,15 @@ class Controle_cargos:
         descricao = self.cargo.input_descricao.get('1.0', tk.END)
         
         try:
-            
             if int(salario) < 700:
                 raise ValueError('Salário deve ser maior que 800')
             
             else: 
                 self.lista_cargos.append(Cargos(nome, salario, descricao))
-                
                 listbox = self.cargo.listbox
                 listbox.insert(tk.END, nome)
-                
                 messagebox.showinfo('Sucesso', 'Cargo Inserido com Sucesso!')
-                
                 self.salva_dados_cargo()
-                
                 self.clean_text()
             
         except ValueError as erro:
@@ -156,42 +158,52 @@ class Controle_cargos:
     def deleta_cargo(self):
         cargo_sel = self.cargo.listbox.get(tk.ACTIVE)
 
-        if cargo_sel:  # Verifica se algum cargo está selecionado
+        if cargo_sel:
             resposta = messagebox.askyesno("Confirmar Exclusão", f"Você realmente deseja deletar o cargo '{cargo_sel}'?")
 
             if resposta:
                 for cargo in self.lista_cargos:
-                    if cargo.nome == cargo_sel:  # Verifica se o nome do cargo corresponde ao selecionado
+                    if cargo.nome == cargo_sel:
                         self.lista_cargos.remove(cargo)
-                        
                         self.salva_dados_cargo()
-                        
                         messagebox.showinfo('Sucesso', 'Cargo deletado com sucesso!')
-                        
                         self.cargo.listbox.delete(tk.ACTIVE)
                         break
                     
     def mostra_funcionario(self, cargo_sel):
         for cargos in self.lista_cargos:
             if cargo_sel == cargos.nome:
-                
-                # Criar a string de informações do cargo usando uma lista e o método join
                 info_cargo = '\n\n'.join([
                     f'Cargo: {cargos.nome}',
                     f'Salário: R${cargos.salario}',
                     f'Descrição: {cargos.descricao}'
                 ])
-                
                 messagebox.showinfo('Visualizar Cargo', info_cargo)
 
-
-    #Método que recebe o evento de duplo click e pega o id do funcionário
     def on_listbox_select(self, event, listbox):
         cargo_sel = listbox.get(tk.ACTIVE)
         self.mostra_funcionario(cargo_sel)
 
-    
     def clean_text(self):
         self.cargo.input_nome.delete(0, tk.END)
         self.cargo.input_salario.delete(0, tk.END)
         self.cargo.input_descricao.delete('1.0', tk.END)
+
+    def gerar_descricao(self):
+        cargo_nome = self.cargo.input_nome.get()
+        if not cargo_nome:
+            messagebox.showerror("Erro", "Insira o nome do cargo para gerar a descrição.")
+            return
+
+        url = f"https://pt.wikipedia.org/api/rest_v1/page/summary/{cargo_nome.replace(' ', '_')}"
+        try:
+            response = requests.get(url, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                descricao = data.get('extract', 'Nenhuma descrição encontrada.')
+                self.cargo.input_descricao.delete('1.0', tk.END)
+                self.cargo.input_descricao.insert(tk.END, descricao)
+            else:
+                messagebox.showerror("Erro", f"Erro ao buscar descrição: {response.status_code}")
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Erro", f"Ocorreu um erro ao buscar descrição: {e}")

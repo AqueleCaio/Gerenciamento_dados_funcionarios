@@ -123,7 +123,6 @@ class Dados(tk.Toplevel): # Classe da tela para alterar os dados do funcionário
         tk.Toplevel.__init__(self)
         self.controle = controle
         
-        self.title('Alterar salário')
         self.geometry('400x400')
         self.configure(bg='light blue')
         self.resizable(False, False)        
@@ -413,7 +412,7 @@ class Controle_funcionario():
                         funcionario.cpf = cpf
                         funcionario.cargo = cargo
                 
-                        self.salva_dados_funcionarios() #Salva as novas alterações feitas no salário do funcionário
+                        self.salva_dados_funcionarios() #Salva as novas alterações feitas nos dados do funcionário
                         
                         self.mostra_janela('Sucesso', 'Dado(s) alterado(s) com sucesso!')
                         
