@@ -3,49 +3,55 @@ import tkinter as tk
 from tkinter import messagebox
 import pickle, os.path
 
+
 class Cargos:
     def __init__(self, nome, salario, descricao):
         self.nome = nome
         self.salario = salario
-        self.__descricao = descricao
+        self.descricao = descricao
 
     @property
     def nome(self):
         return self.__nome
 
+
     @property
     def salario(self):
         return self.__salario
 
+
     @property
     def descricao(self):
         return self.__descricao
-
+    
+    
     @nome.setter
     def nome(self, nome):
-        if nome == '':
+        if not nome.strip():
             raise ValueError('Nome não pode ser vazio')
-
         elif any(char.isdigit() for char in nome):
             raise ValueError('Nome não pode conter números')
+        self.__nome = nome
         
-        else:
-            self.__nome = nome
-            
+        
     @salario.setter
     def salario(self, salario):
-        if salario == '':
+        if not str(salario).strip():
             raise ValueError('Salário não pode ser vazio')
-
-        elif not str(salario).isdigit():
+        if not str(salario).isdigit():
             raise ValueError('Salário deve ser um número')
-
-        else:
-            self.__salario = salario
+        self.__salario = int(salario)  # Certifica-se de armazenar como inteiro
 
 
-class View_cargos(tk.Toplevel): 
-    def __init__(self, controle, lista_cargo): 
+    @descricao.setter
+    def descricao(self, descricao):
+        if not descricao.strip():
+            raise ValueError('Descrição não pode ser vazia')
+        self.__descricao = descricao
+
+
+class View_cargos(tk.Toplevel):
+    def __init__(self, controle, lista_cargo):
         tk.Toplevel.__init__(self)
         self.controle = controle
                 
@@ -54,8 +60,8 @@ class View_cargos(tk.Toplevel):
         self.configure(bg='light blue')
         self.resizable(False, False)
 
-        self.frame_left = tk.Frame(self, bg='light blue', borderwidth=1, relief='solid') # Frame esquerdo
-        self.frame_right = tk.Frame(self, bg='light blue') # Frame direito
+        self.frame_left = tk.Frame(self, bg='light blue', borderwidth=1, relief='solid')  # Frame esquerdo
+        self.frame_right = tk.Frame(self, bg='light blue')  # Frame direito
 
         self.titulo_left = tk.Label(self.frame_left, text='Insira um cargo', bg='light blue')
         self.titulo_left.config(font=('Arial', 13, 'bold'))
@@ -63,7 +69,7 @@ class View_cargos(tk.Toplevel):
         self.titulo_right.config(font=('Arial', 13, 'bold'))
 
         self.frame_inputs = tk.Frame(self.frame_left, bg='light blue')
-        
+
         self.nome = tk.Label(self.frame_inputs, text='Cargo', bg='light blue')
         self.salario = tk.Label(self.frame_inputs, text='Salário', bg='light blue')
         self.descricao = tk.Label(self.frame_inputs, text='Descrição', bg='light blue')
@@ -73,8 +79,7 @@ class View_cargos(tk.Toplevel):
         self.input_descricao = tk.Text(self.frame_inputs, width=30, height=5)
 
         self.listbox = tk.Listbox(self.frame_right, width=27, height=14)
-        
-        self.listbox.bind('<Double-1>', lambda event: controle.on_listbox_select(event, self.listbox))#Passar um metodo double click
+        self.listbox.bind('<Double-1>', lambda event: controle.on_listbox_select(event, self.listbox))  # Passar um metodo double click
 
         for listbox in lista_cargo:
             self.listbox.insert(tk.END, listbox)
@@ -86,6 +91,7 @@ class View_cargos(tk.Toplevel):
         self.botao_gerar_descricao = tk.Button(self.frame_botoes, text='Gerar Descrição', command=controle.gerar_descricao)
         
         self.botao_deleta = tk.Button(self.frame_right, text='Deletar', command=controle.deleta_cargo)
+        self.botao_alterar = tk.Button(self.frame_right, text='Alterar', command=controle.alterar_cargo)
 
         # Layout
         self.frame_left.pack(side=tk.LEFT, padx=15, pady=10)
@@ -97,23 +103,62 @@ class View_cargos(tk.Toplevel):
         self.nome.grid(row=0, column=0, sticky='w', pady=5)
         self.salario.grid(row=1, column=0, sticky='w', pady=5)
         self.descricao.grid(row=2, column=0, sticky='w', pady=5)
-        
+
         self.input_nome.grid(row=0, column=1, sticky='w', pady=5)
         self.input_salario.grid(row=1, column=1, sticky='w', pady=5)
         self.input_descricao.grid(row=2, column=1, sticky='w', pady=1)
 
         self.titulo_right.pack(pady=10)
         self.listbox.pack(padx=5, pady=5)
-        
+
         # Layout dos botões no novo frame
         self.frame_botoes.pack(pady=7, fill=tk.X)
-        
-        self.botao_adiciona.grid(row=0, column=0, padx=(40, 50))  # Espaçamento à direita do primeiro botão
-        self.botao_gerar_descricao.grid(row=0, column=1, padx=(50, 0))  # Espaçamento à esquerda do segundo botão
 
+        self.botao_adiciona.grid(row=0, column=0, padx=(40, 50))
+        self.botao_gerar_descricao.grid(row=0, column=1, padx=(50, 0))
 
-        self.botao_deleta.pack(padx=5, pady=5)
+        self.botao_deleta.pack(side=tk.LEFT, padx=5, pady=5)
+        self.botao_alterar.pack(side=tk.RIGHT, padx=5, pady=5)
 
+class AlteraDadosCargos(tk.Toplevel):
+    def __init__(self, controle, cargo):
+        tk.Toplevel.__init__(self)
+        self.controle = controle
+        self.cargo = cargo
+
+        self.title('Alterar Cargo')
+        self.geometry('550x350')
+        self.configure(bg='light blue')
+        self.resizable(False, False)
+
+        self.frame_inputs = tk.Frame(self, bg='light blue')
+
+        self.nome = tk.Label(self.frame_inputs, text='Cargo', bg='light blue')
+        self.salario = tk.Label(self.frame_inputs, text='Salário', bg='light blue')
+        self.descricao = tk.Label(self.frame_inputs, text='Descrição', bg='light blue')
+
+        self.input_nome = tk.Entry(self.frame_inputs)
+        self.input_salario = tk.Entry(self.frame_inputs, width=10)
+        self.input_descricao = tk.Text(self.frame_inputs, width=50, height=10)
+
+        self.input_nome.insert(0, cargo.nome)
+        self.input_salario.insert(0, cargo.salario)
+        self.input_descricao.insert('1.0', cargo.descricao)
+
+        self.botao_confirmar = tk.Button(self, text='Confirmar Alteração', command=controle.confirma_alteracao)
+
+        # Layout
+        self.frame_inputs.pack(pady=20, ipadx=10, ipady=10)
+
+        self.nome.grid(row=0, column=0, sticky='w', pady=5)
+        self.salario.grid(row=1, column=0, sticky='w', pady=5)
+        self.descricao.grid(row=2, column=0, sticky='w', pady=5)
+
+        self.input_nome.grid(row=0, column=1, sticky='w', pady=5)
+        self.input_salario.grid(row=1, column=1, sticky='w', pady=5)
+        self.input_descricao.grid(row=2, column=1, sticky='w', pady=5)
+
+        self.botao_confirmar.pack(pady=10)
 
 
 class Controle_cargos:
@@ -132,10 +177,54 @@ class Controle_cargos:
         lista_cargo = self.get_nome()
         self.cargo = View_cargos(self, lista_cargo)
         
+        
+    def alterar_cargo(self):
+        selecionado = self.cargo.listbox.get(tk.ACTIVE)
+        if not selecionado:
+            messagebox.showerror('Erro', 'Nenhum cargo selecionado!')
+            return
+
+        cargo = self.get_cargo_por_nome(selecionado)  # Método para buscar os dados do cargo selecionado
+        if cargo:
+            self.tela_altera = AlteraDadosCargos(self, cargo)
+            
+
+    def confirma_alteracao(self):
+        nome = self.tela_altera.input_nome.get()
+        salario = self.tela_altera.input_salario.get()
+        descricao = self.tela_altera.input_descricao.get('1.0', tk.END).strip()
+        
+        resposta = messagebox.askyesno('Confirmação', 'Deseja realmente alterar os dados?')
+        if resposta:
+            try:
+                for cargo in self.lista_cargos:
+                    if cargo.nome == nome:
+                        cargo.salario = salario
+                        cargo.descricao = descricao
+
+                        self.salva_dados_cargo()  # Método para salvar alterações no backend
+
+                        messagebox.showinfo('Sucesso', 'Dado(s) alterado(s) com sucesso!')
+                        
+                        return
+                messagebox.showerror('Erro', 'Cargo não encontrado para alteração!')
+            except Exception as e:
+                messagebox.showerror('Erro', f'Ocorreu um erro: {str(e)}')
+        else:
+            pass
+
+    # Manda o objeto cargo para a tela de alteração
+    def get_cargo_por_nome(self, nome):
+        for cargo in self.lista_cargos:
+            if cargo.nome == nome:
+                return cargo
+        return None
+        
     def enterHandler(self):
         nome = self.cargo.input_nome.get()
         salario = self.cargo.input_salario.get()
         descricao = self.cargo.input_descricao.get('1.0', tk.END)
+        
         
         try:
             if int(salario) < 700:
@@ -152,6 +241,7 @@ class Controle_cargos:
         except ValueError as erro:
             messagebox.showerror('Erro', erro)
             
+    # Manda os nomes para lista de cargos inseridos
     def get_nome(self):
         return [cargo.nome for cargo in self.lista_cargos]
     
