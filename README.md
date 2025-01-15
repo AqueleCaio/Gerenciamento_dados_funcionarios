@@ -11,7 +11,8 @@ Este aplicativo foi desenvolvido utilizando a biblioteca Tkinter e segue o padr�
 - **Deletar Funcionários:** Permite remover funcionários do sistema, se necessário.  
 - **Adicionar Cargos:** Permite adicionar novos cargos para associá-los aos funcionários cadastrados.  
 - **Deletar Cargos:** Permite deletar os cargos cadastrados.  
-- **Gerar Descrição de Cargos:** Inclui um sistema que utiliza uma API da Wikipedia para gerar automaticamente descrições detalhadas dos cargos adicionados.  
+- **Gerar Descrição de Cargos:** Inclui um sistema que utiliza uma API da Wikipedia para gerar automaticamente descrições detalhadas dos cargos adicionados.
+- **Alterar Dados de Cargos:** Permite alterar os dados de um determinado cargo a escolha do usuário.
 
 ## Como Usar :question:  
 Para usar este aplicativo, você precisa ter Python e Tkinter instalados em seu sistema. Depois de instalados, você pode clonar este repositório e executar o arquivo principal do aplicativo (`main.py`).  
