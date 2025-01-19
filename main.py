@@ -60,7 +60,7 @@ class Controle_principal():
     def __init__(self):
         self.root = tk.Tk()
         
-        self.controle_funcionario = funcionario.Controle_funcionario()
+        self.controle_funcionario = funcionario.ControleFuncionario()
         self.controle_cargos = cargo.Controle_cargos()
         
         self.root.title('§')

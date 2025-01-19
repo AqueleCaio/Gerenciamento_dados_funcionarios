@@ -205,7 +205,7 @@ class Dados(tk.Toplevel): # Classe da tela para alterar os dados do funcionário
         self.comboboxCargo.grid(column=1, row=5, sticky=tk.W, pady=5)
 
          
-class Cadastra_funcionario(tk.Toplevel):
+class CadastraFuncionario(tk.Toplevel):
     def __init__(self, controle, lista_funcionarios, lista_cargos): # passar a lista de cargos pelo controle
         
         tk.Toplevel.__init__(self)
@@ -269,7 +269,7 @@ class Cadastra_funcionario(tk.Toplevel):
         ##__________________________Listbox__________________________________##
         self.listbox = tk.Listbox(self.frame_listbox, width=27, height=16)
                     
-        self.listbox.bind('<Double-1>', lambda event: controle.on_listbox_select(event, self.listbox))#Passar um metodo double click
+        self.listbox.bind('<Double-1>', lambda event: controle._get_item_selecionado(event, self.listbox))#Passar um metodo double click
 
         #Loop para carregar a lista de funcionários na listbox assim que a tela abre
         for funcionarios in lista_funcionarios:
@@ -316,216 +316,142 @@ class Cadastra_funcionario(tk.Toplevel):
         self.comboboxCargo.grid(column=1, row=5, sticky=tk.W, pady=5)
 
 
-class Controle_funcionario():
+class ControleFuncionario:
     def __init__(self):
+        self.lista_funcionarios = self._carregar_arquivo('funcionarios.pickle', [])
+
+    @staticmethod
+    def _carregar_arquivo(nome_arquivo, valor_padrao):
         try:
-            if not os.path.isfile('funcionarios.pickle'):
-                self.lista_funcionarios = []
-            else:
-                with open ('funcionarios.pickle', 'rb') as file:
-                    self.lista_funcionarios = pickle.load(file)
+            if os.path.isfile(nome_arquivo):
+                with open(nome_arquivo, 'rb') as file:
+                    return pickle.load(file)
         except PermissionError:
-            print("Erro de permissão ao tentar abrir o arquivo 'funcionarios.pickle'. Por favor, verifique as permissões do arquivo.")
-                
-                
+            print(f"Erro de permissão ao tentar abrir o arquivo '{nome_arquivo}'.")
+        return valor_padrao
+
+    @staticmethod
+    def _salvar_arquivo(nome_arquivo, dados):
+        if dados:
+            with open(nome_arquivo, 'wb') as file:
+                pickle.dump(dados, file)
+
     def salva_dados_funcionarios(self):
-        if len(self.lista_funcionarios) != 0:
-            with open ('funcionarios.pickle', 'wb') as file:
-                pickle.dump(self.lista_funcionarios, file)
-                
-                
-    def get_cargos_from_file(self):
-        if os.path.isfile('cargos.pickle'):
-            with open('cargos.pickle', 'rb') as file:
-                return pickle.load(file)
-        return []
-    
-    
-    def get_nomeCargo(self):
-        self.lista_nomeCargo = []
-        
-        for cargo in self.get_cargos_from_file():
-            self.lista_nomeCargo.append(cargo.nome)
-        
-        return self.lista_nomeCargo
-      
-                                         
+        self._salvar_arquivo('funcionarios.pickle', self.lista_funcionarios)
+
+    def get_cargos(self):
+        return self._carregar_arquivo('cargos.pickle', [])
+
+    def get_nome_cargos(self):
+        return [cargo.nome for cargo in self.get_cargos()]
+
     def insere_funcionario(self):
         lista_dados_funcionario = self.get_id_funcionarios()
-        lista_nomes_cargos = self.get_nomeCargo()
-        self.cadastro = Cadastra_funcionario(self, lista_dados_funcionario, lista_nomes_cargos)
-        
-        
+        lista_nomes_cargos = self.get_nome_cargos()
+        self.cadastro = CadastraFuncionario(self, lista_dados_funcionario, lista_nomes_cargos)
+
     def deleta_funcionario(self):
-        identidade = self.cadastro.listbox.get(tk.ACTIVE)
-        
-        if identidade:  # Verifica se um funcionário está selecionado
-            resposta = messagebox.askyesno("Confirmar Exclusão", "Você realmente deseja deletar este funcionário?")
-            
-            if resposta:  # resposta já é um booleano
-                for funcionario in self.lista_funcionarios:
-                    if identidade[1] == funcionario.identidade:
-                        
-                        self.lista_funcionarios.remove(funcionario)
-                        
-                        self.salva_dados_funcionarios()
-                        
-                        self.mostra_janela('Sucesso', 'Funcionário deletado com sucesso')
-                        
-                        self.cadastro.listbox.delete(tk.ACTIVE)
-                        break  # Adicione um break para parar o loop após deletar o funcionário
-                    
-        
-    def gerir_dados(self): #Abre a tela para gerenciar os dados do funcionário
-        identidade = self.cadastro.listbox.get(tk.ACTIVE)
-        lista_nomes_cargos = self.get_nomeCargo()
-        
-        
-        for funcionario in self.lista_funcionarios:
-            if identidade[1] == funcionario.identidade:
-                identidade = funcionario.identidade
-                nome = funcionario.nome
-                dataNasc = funcionario.dataNasc
-                email = funcionario.email
-                cpf = funcionario.cpf
-        
-        self.tela_dados = Dados(self, identidade, nome, dataNasc, email, cpf, lista_nomes_cargos) 
-        
-        
-    def altera_dados(self): #confirmação da alteração dos dados
-        identidade = self.tela_dados.input_id.get()
-        nome = self.tela_dados.input_nome.get()
-        dataNasc = self.tela_dados.input_dataNasc.get()
-        email = self.tela_dados.input_email.get()
-        cpf = self.tela_dados.input_cpf.get()
-        cargo = self.tela_dados.comboboxCargo.get()
-            
-        resposta = messagebox.askyesno('Confirmação', 'Deseja realmente alterar os dados?')    
-        try:
-            if resposta == True:
-                for funcionario in self.lista_funcionarios:
-                    if identidade == funcionario.identidade:
-                        funcionario.identidade = identidade
-                        funcionario.nome = nome
-                        funcionario.dataNasc = dataNasc
-                        funcionario.email = email
-                        funcionario.cpf = cpf
-                        funcionario.cargo = cargo
-                
-                        self.salva_dados_funcionarios() #Salva as novas alterações feitas nos dados do funcionário
-                        
-                        self.mostra_janela('Sucesso', 'Dado(s) alterado(s) com sucesso!')
-                        
-                        self.tela_dados.destroy()   
-            else:
-                pass
-            
-        except ValueError as erro:
-            self.mostra_janela('Erro', erro)
-        
-    #Método que insere o funcionário na lista de funcionários
-    def enter_handler(self):
-        identidade = self.cadastro.input_id.get()
-        nome = self.cadastro.input_nome.get()
-        dataNasc = self.cadastro.input_dataNasc.get()
-        email = self.cadastro.input_email.get()
-        cpf = self.cadastro.input_cpf.get()
-        cargo = self.cadastro.comboboxCargo.get()
-        data_adimissão = date.strftime('%d/%m/%Y' ' - ' '%H:%M')
-        
-        attributes = ['identidade', 'nome', 'email', 'cpf']
-        
-        try:
-            self.dataNasc = dataNasc
+        identidade = self._get_item_selecionado(self.cadastro.listbox)
 
-            # Calcula a idade e verifica se é maior de 18 anos e menor que 70
-            dataNasc_dt = datetime.strptime(self.dataNasc, '%d/%m/%Y')
-            today = datetime.today()
-            idade = today.year - dataNasc_dt.year - ((today.month, today.day) < (dataNasc_dt.month, dataNasc_dt.day))
-            if idade < 18 or idade > 70:
-                raise ValueError('Idade inválida')
-
-            for funcionario in self.lista_funcionarios:
-                for attr in attributes:
-                    value = getattr(funcionario, attr)
-                    input_value = locals()[attr]
-
-                    if input_value in value and len(input_value) > 1:
-                        raise ValueError(f'O {attr} {input_value} já consta no registro')
-                    elif input_value in value and len(input_value) == 0:
-                        raise ValueError(f'O {attr} não foi indicado')
-
-            else: 
-                self.lista_funcionarios.append(Funcionario(identidade, nome, dataNasc, email, cpf, cargo, data_adimissão))
-
-                identidade = 'Nº:', identidade
-
-                # Atualiza a listbox com o novo funcionário
-                self.cadastro.listbox.insert(0, identidade)
-
-                self.mostra_janela('Sucesso', 'Funcionário Cadastrado com Sucesso')
-                
-                #criar um botão para cadastrar e salvar colocando o metodo salva_dados_funcionarios no enter_handler
+        if identidade and self._confirma_acao("Confirmar Exclusão", "Você realmente deseja deletar este funcionário?"):
+            funcionario = next((f for f in self.lista_funcionarios if f.identidade == identidade), None)
+            if funcionario:
+                self.lista_funcionarios.remove(funcionario)
+                self._atualiza_listbox(self.cadastro.listbox)
                 self.salva_dados_funcionarios()
-                
-                self.limpa_texto()   
-                
+                self.mostra_janela('Sucesso', 'Funcionário deletado com sucesso')
+
+    def gerir_dados(self):
+        identidade = self._get_item_selecionado(self.cadastro.listbox)
+        funcionario = next((f for f in self.lista_funcionarios if f.identidade == identidade), None)
+
+        if funcionario:
+            self.tela_dados = Dados(
+                self,
+                funcionario.identidade,
+                funcionario.nome,
+                funcionario.dataNasc,
+                funcionario.email,
+                funcionario.cpf,
+                self.get_nome_cargos()
+            )
+
+    def altera_dados(self):
+        if self._confirma_acao('Confirmação', 'Deseja realmente alterar os dados?'):
+            identidade = self.tela_dados.input_id.get()
+            funcionario = next((f for f in self.lista_funcionarios if f.identidade == identidade), None)
+
+            if funcionario:
+                self._atualiza_atributos(funcionario, self.tela_dados)
+                self.salva_dados_funcionarios()
+                self.mostra_janela('Sucesso', 'Dado(s) alterado(s) com sucesso!')
+                self.tela_dados.destroy()
+
+    def enter_handler(self):
+        try:
+            dados = self._coleta_dados_formulario(self.cadastro)
+            self._valida_dados(dados)
+            self.lista_funcionarios.append(Funcionario(**dados))
+            self.salva_dados_funcionarios()
+            self._atualiza_listbox(self.cadastro.listbox)
+            self.mostra_janela('Sucesso', 'Funcionário cadastrado com sucesso')
         except ValueError as erro:
-            self.mostra_janela('Erro', erro)
-              
-            
-    #Método que pega o id do funcionário para inserir na listbox
+            self.mostra_janela('Erro', str(erro))
+
     def get_id_funcionarios(self):
-        self.lista_dados_funcionario = []
+        return [(f'Nº: {f.identidade}', f.identidade) for f in self.lista_funcionarios]
+
+    def _valida_dados(self, dados):
+        data_nasc_dt = datetime.strptime(dados['dataNasc'], '%d/%m/%Y')
+        hoje = datetime.today()
+        idade = hoje.year - data_nasc_dt.year - ((hoje.month, hoje.day) < (data_nasc_dt.month, data_nasc_dt.day))
+
+        if idade < 18 or idade > 70:
+            raise ValueError('Idade inválida')
         
         for funcionario in self.lista_funcionarios:
-            identidade = 'Nº:', funcionario.identidade
-            
-            self.lista_dados_funcionario.append(identidade)
-            
-        return self.lista_dados_funcionario
+            for attr in ['identidade', 'nome', 'email', 'cpf']:
+                if dados[attr] == getattr(funcionario, attr):
+                    atributo_duplicado = attr
+                    break
+            else:
+                continue  # Continua para o próximo funcionário se nenhum atributo duplicado for encontrado
+            break  # Interrompe o loop principal se um atributo duplicado for encontrado
 
-    #Método que mostra as informações do funcionário a partir do id
-    def mostra_funcionario(self, id_funcionario):
-        for info in self.lista_funcionarios:
-            if id_funcionario == info.identidade:
-                
-                #Calcula a idade do funcionário a partir da data de nascimento
-                idade = datetime.strptime(info.dataNasc, '%d/%m/%Y')
-                idade = date.year - idade.year - ((date.month, date.day) < (idade.month, idade.day))
-                
-                # Formatar o CPF com pontos e traços
-                cpf = info.cpf[:3] + '.' + info.cpf[3:6] + '.' + info.cpf[6:9] + '-' + info.cpf[9:]
-                
-                # Criar a string de informações do funcionário usando uma lista e o método join
-                info_funcionarios = '\n\n'.join([
-                    f'Funcionário {info.identidade}',
-                    f'Nome: {info.nome}',
-                    f'Idade: {idade}',
-                    f'Email: {info.email}',
-                    f'CPF: {cpf}',
-                    f'Cargo: {info.cargo}',
-                    f'Data de Adimissão: {info.data_adimissão}'
-                ])
-                
-                self.mostra_janela('Funcionário', info_funcionarios)
+        if atributo_duplicado:
+            raise ValueError(f'Este {atributo_duplicado} já consta no registro')
 
 
-    #Método que recebe o evento de duplo click e pega o id do funcionário
-    def on_listbox_select(self, event, listbox):
-        id_funcionario = listbox.get(tk.ACTIVE)
-        self.mostra_funcionario(id_funcionario[1])
+    def _coleta_dados_formulario(self, formulario):
+        return {
+            'identidade': formulario.input_id.get(),
+            'nome': formulario.input_nome.get(),
+            'dataNasc': formulario.input_dataNasc.get(),
+            'email': formulario.input_email.get(),
+            'cpf': formulario.input_cpf.get(),
+            'cargo': formulario.comboboxCargo.get(),
+            'data_adimissão': datetime.now().strftime('%d/%m/%Y - %H:%M')
+        }
 
+    def _atualiza_listbox(self, listbox):
+        listbox.delete(0, tk.END)
+        for identidade in self.get_id_funcionarios():
+            listbox.insert(tk.END, identidade)
 
-    def mostra_janela(self, titulo, menssagem):
-        messagebox.showinfo(titulo, menssagem)
-    
-    
-    def limpa_texto(self):
-        self.cadastro.input_id.delete(0, tk.END)
-        self.cadastro.input_nome.delete(0, tk.END)
-        self.cadastro.input_dataNasc.delete(0, tk.END)
-        self.cadastro.input_email.delete(0, tk.END)
-        self.cadastro.input_cpf.delete(0, tk.END)  
-        self.cadastro.comboboxCargo.set("") 
-        
+    def _atualiza_atributos(self, funcionario, tela):
+        funcionario.identidade = tela.input_id.get()
+        funcionario.nome = tela.input_nome.get()
+        funcionario.dataNasc = tela.input_dataNasc.get()
+        funcionario.email = tela.input_email.get()
+        funcionario.cpf = tela.input_cpf.get()
+        funcionario.cargo = tela.comboboxCargo.get()
+
+    def mostra_janela(self, titulo, mensagem):
+        messagebox.showinfo(titulo, mensagem)
+
+    def _confirma_acao(self, titulo, mensagem):
+        return messagebox.askyesno(titulo, mensagem)
+
+    def _get_item_selecionado(self, listbox):
+        selecionado = listbox.get(tk.ACTIVE)
+        return selecionado[1] if selecionado else None
